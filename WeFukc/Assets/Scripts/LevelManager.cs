@@ -23,7 +23,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private GameObject menu_playerNameInputUI;
     [SerializeField] private GameObject menu_welcomePlayerUI;
     [SerializeField] private TMP_InputField menu_playerNameInput;
-    private bool menu_levelCanvasActive = true;
+    private bool menu_levelCanvasActive = false;
     private bool menu_optionsCanvasActive = false;
     [SerializeField] private GameObject[] levels;
 

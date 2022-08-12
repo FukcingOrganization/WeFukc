@@ -206,7 +206,7 @@ public class StickPlayer : MonoBehaviour
         ///// Fight /////
         if (!grounded) return;  // On air, not get fighting input
         // Punching // 
-        if (Input.GetKeyDown("j") && velocityABS > 10f)
+        if (Input.GetKeyDown("j") && velocityABS > 2.5f)
         {
             if (stamina > punchRunHitPoint) isRunPunching = true;
             else if (!isHighlighting) StartCoroutine(StaminaHighlight());
@@ -346,6 +346,7 @@ public class StickPlayer : MonoBehaviour
         {
             animator.SetTrigger(PUNCH_RUN);
             isRunPunching = false;
+            canAnimate = false;
 
             stamina -= punchRunHitPoint;
 
@@ -426,16 +427,17 @@ public class StickPlayer : MonoBehaviour
     private void OnDrawGizmos()
     {
         //Gizmos.DrawCube(transform.position, new Vector2(10f, 2f));
+        
+        Vector2 drawGismos = new Vector2(punchHitLocation.position.x, punchHitLocation.position.y);
+        Gizmos.DrawWireSphere(drawGismos, punchHitRange);
         /*
-        Vector2 drawGismos = new Vector2(turningKickHitLocation.position.x, turningKickHitLocation.position.y);
-        Gizmos.DrawWireSphere(drawGismos, turningKickHitRange);
-
         if (facingRightInt > 0) 
             drawGismos = new Vector2(turningKickHitLocation.position.x - 2.6f, turningKickHitLocation.position.y);
         else
             drawGismos = new Vector2(turningKickHitLocation.position.x + 2.6f, turningKickHitLocation.position.y);
         Gizmos.DrawWireSphere(drawGismos, turningKickHitRange); 
         */
+        
     }
     
     ///  ************************   ///
@@ -459,8 +461,9 @@ public class StickPlayer : MonoBehaviour
     }
     private void PunchRunHit()
     {   // Punch run uses the same location as normal punch but has different hit points
+        // 2x increased range than normal because otherwise it goes fast and miss.
         hitEnemies = Physics2D.OverlapCircleAll
-            (punchHitLocation.position, punchHitRange, enemyLayers);
+            (punchHitLocation.position, punchHitRange * 2f, enemyLayers); 
 
         bool damageFromRight;
 
@@ -660,7 +663,7 @@ public class StickPlayer : MonoBehaviour
     {
         FindObjectOfType<AudioManager>().PlaySFX("Death");
 
-        yield return new WaitForSeconds(10f);
+        yield return new WaitForSeconds(5f);
 
         Destroy(gameObject);
         FindObjectOfType<LevelLoader>().LoadLevel("MenuScene");
