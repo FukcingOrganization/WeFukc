@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   sodipodi:docname="Ground Color.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="2.1971894"
+     inkscape:cx="181.36807"
+     inkscape:cy="134.03487"
+     inkscape:window-width="1920"
+     inkscape:window-height="1057"
+     inkscape:window-x="-8"
+     inkscape:window-y="444"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2316">
+      <stop
+         style="stop-color:#757575;stop-opacity:1"
+         offset="0"
+         id="stop2312" />
+      <stop
+         style="stop-color:#5c5c5c;stop-opacity:1"
+         offset="1"
+         id="stop2314" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1806">
+      <stop
+         style="stop-color:#939393;stop-opacity:1;"
+         offset="0"
+         id="stop1802" />
+      <stop
+         style="stop-color:#5c5c5c;stop-opacity:1"
+         offset="1"
+         id="stop1804" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1806"
+       id="linearGradient1808"
+       x1="83.865791"
+       y1="112.96465"
+       x2="84.127296"
+       y2="90.381989"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-17.370413,-70.844034)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1806"
+       id="linearGradient2020"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1,0,0,9.9999998,9.0879193,-852.51254)"
+       x1="84.467888"
+       y1="108.99083"
+       x2="84.127296"
+       y2="88.214447" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2316"
+       id="linearGradient2318"
+       x1="11.801061"
+       y1="42.86916"
+       x2="12.041899"
+       y2="16.738239"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:url(#linearGradient1808);fill-opacity:1;stroke:none;stroke-width:2.64583"
+       id="rect846"
+       width="26.458334"
+       height="26.458334"
+       x="51.430046"
+       y="16.008022"
+       inkscape:export-filename="C:\Users\bozen\Downloads\testFloor_0_High.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#linearGradient2020);fill-opacity:1;stroke:none;stroke-width:8.36685"
+       id="rect2018"
+       width="26.458334"
+       height="264.58334"
+       x="77.888382"
+       y="16.008022"
+       inkscape:export-filename="C:\Users\bozen\Downloads\testFloor_0_High.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#939393;fill-opacity:1;stroke:none;stroke-width:2.64583"
+       id="rect2022"
+       width="26.458334"
+       height="26.458334"
+       x="24.97171"
+       y="42.466354"
+       inkscape:export-filename="C:\Users\bozen\Downloads\testFloor_0_Defaul.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#linearGradient2318);fill-opacity:1;stroke:none;stroke-width:2.64583"
+       id="rect2044"
+       width="26.458334"
+       height="26.458334"
+       x="-1.4866257"
+       y="16.008022"
+       inkscape:export-filename="C:\Users\bozen\Downloads\testFloor_0_Wall.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+  </g>
+</svg>
