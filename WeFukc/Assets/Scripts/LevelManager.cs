@@ -19,12 +19,14 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private Canvas menu_menuCanvas;
     [SerializeField] private Canvas menu_levelCanvas;
     [SerializeField] private Canvas menu_optionsCanvas;
+    [SerializeField] private Canvas menu_controlsCanvas;
     [SerializeField] private TextMeshProUGUI menu_playerName;
     [SerializeField] private GameObject menu_playerNameInputUI;
     [SerializeField] private GameObject menu_welcomePlayerUI;
     [SerializeField] private TMP_InputField menu_playerNameInput;
     private bool menu_levelCanvasActive = false;
     private bool menu_optionsCanvasActive = false;
+    private bool menu_controlsCanvasActive = false;
     [SerializeField] private GameObject[] levels;
 
 
@@ -126,6 +128,22 @@ public class LevelManager : MonoBehaviour
         }
 
         menu_optionsCanvasActive = !menu_optionsCanvasActive;
+    }
+
+    public void ToggleControlsCanvas()
+    {
+        if(menu_controlsCanvasActive) // if controls canvas active , open option canvas close controls canvas
+        {
+            menu_controlsCanvas.gameObject.SetActive(false);
+            menu_optionsCanvas.gameObject.SetActive(true);
+        }
+        else // and vice versa
+        {
+            menu_controlsCanvas.gameObject.SetActive(true);
+            menu_optionsCanvas.gameObject.SetActive(false);
+        }
+
+        menu_controlsCanvasActive = !menu_controlsCanvasActive;
     }
 
     // Reset name and level achivements
