@@ -1,11 +1,12 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class StickPlayer : MonoBehaviour
 {
     [Header("Movement")]
-    [SerializeField] private float movementSpeed = 15f;
+    [SerializeField] private float movementSpeed = 14f;
     [SerializeField] private float jumpForce = 30f;
     [SerializeField] private float flyingKickForce = 15f;
     [SerializeField] private float flyingKickUp = 15f;
@@ -51,6 +52,7 @@ public class StickPlayer : MonoBehaviour
     // Other game objects and components
     private Animator animator;
     private Rigidbody2D rigidbody;
+    private PlayerInput input;
 
     // Health and Stamina
     private float health;
@@ -67,6 +69,7 @@ public class StickPlayer : MonoBehaviour
     // Movement vars
     private bool grounded = false;
     private bool canAnimate = true;
+    private Vector2 inputXY;
     private float inputX = 0f;
     private float movement = 0f;
     private float facingRightInt = 0f;
@@ -106,10 +109,38 @@ public class StickPlayer : MonoBehaviour
     private const string SNARE_BIG = "SnareBig";
 
 
+    private bool key_jump;
+    private bool key_punch;
+    private bool key_kick;
+    private bool key_combo;
+    private bool key_inter;
+    private bool key_defense;
+
+    private void Awake()
+    {
+        input = new PlayerInput();
+        // Check input keys
+        input.Player.Move.performed += ctx => inputXY = ctx.ReadValue<Vector2>();
+        input.Player.Move.canceled += ctx => inputXY = ctx.ReadValue<Vector2>();
+        input.Player.Jump.started += ctx => key_jump = true;
+        input.Player.Jump.canceled += ctx => key_jump = false;
+        input.Player.Punch.started += ctx => key_punch = true;
+        input.Player.Punch.canceled += ctx => key_punch = false;
+        input.Player.Kick.started += ctx => key_kick = true;
+        input.Player.Kick.canceled += ctx => key_kick = false;
+        input.Player.Combo.started += ctx => key_combo = true;
+        input.Player.Combo.canceled += ctx => key_combo = false;
+        input.Player.Ýnteraction.started += ctx => key_inter = true;
+        input.Player.Ýnteraction.canceled += ctx => key_inter = false;
+        input.Player.Defense.started += ctx => key_defense = true;
+        input.Player.Defense.canceled += ctx => key_defense = false;
+
+    }
     private void Start()
     {
         animator = GetComponent<Animator>();
         rigidbody = GetComponent<Rigidbody2D>();
+        
 
         health = maxHealth;
         healthSlider.value = health;
@@ -171,6 +202,15 @@ public class StickPlayer : MonoBehaviour
         Actions();
     }
 
+    void OnEnable()
+    {
+        input.Player.Enable();
+    }
+    void OnDisable()
+    {
+        input.Player.Disable();
+    }
+
     private void StatusCheck()
     {
         // GROUND CHECK
@@ -190,63 +230,77 @@ public class StickPlayer : MonoBehaviour
         }
 
         // Get the input
-        inputX = Input.GetAxis("Horizontal");
+        //inputX = Input.GetAxis("Horizontal");
+        inputX = inputXY.x;
         movement = inputX * movementSpeed;
 
         if (!canAnimate) return;
 
-        if (Input.GetButtonDown("Jump") && grounded && stamina > staminaJump)
+        
+
+        if (key_jump && grounded && stamina > staminaJump)
         {
             isJumping = true;
+            key_jump = !key_jump;
         }
-
+        
         // Gettin velocity
         velocityABS = Mathf.Abs(rigidbody.velocity.x);
-
         ///// Fight /////
         if (!grounded) return;  // On air, not get fighting input
         // Punching // 
-        if (Input.GetKeyDown("j") && velocityABS > 2.5f)
+        if (key_punch && velocityABS > 2.5f)
         {
             if (stamina > punchRunHitPoint) isRunPunching = true;
             else if (!isHighlighting) StartCoroutine(StaminaHighlight());
+            key_punch = !key_punch;
         }
-        else if (Input.GetKeyDown("j") && velocityABS < 1f)
+        else if (key_punch && velocityABS < 1f)
         {
             if (stamina > punchHitPoint) isPunching = true;
-            else if (!isHighlighting) StartCoroutine(StaminaHighlight());            
+            else if (!isHighlighting) StartCoroutine(StaminaHighlight());
+            key_punch = !key_punch;
         }
-        
+
+
         // Kicking //
-        else if (Input.GetKeyDown("l") && grounded && Input.GetKey("w"))
+        else if (key_kick && grounded && key_combo)
         {
             if (stamina > turningKickHitPoint) isTurningKicking = true;
             else if (!isHighlighting) StartCoroutine(StaminaHighlight());
+            key_kick = !key_kick;
+            key_combo = !key_combo;
         }
-        else if (Input.GetKeyDown("l") && grounded && velocityABS > 2f)
+        else if (key_kick && grounded && velocityABS > 2f)
         {
             if (stamina > flyingKickHitPoint) isFlyKicking = true;
             else if (!isHighlighting) StartCoroutine(StaminaHighlight());
+            key_kick = !key_kick;
         }
-        else if (Input.GetKeyDown("l") && grounded && velocityABS < 1f)
+        else if (key_kick && grounded && velocityABS < 1f)
         {
             if (stamina > kickHitPoint) isKicking = true;
             else if (!isHighlighting) StartCoroutine(StaminaHighlight());
+            key_kick = !key_kick;
         }
-        
+
         // Elevator Check - But not after activated!
-        else if (Input.GetButton("Submit"))
+        else if (key_inter)
         {
             if (hasKey) isElevatorActivated = true;
             else
             {
-                FindObjectOfType<Elevator>().ShowKeyWarning(); 
+                FindObjectOfType<Elevator>().ShowKeyWarning();
             }
+            key_inter = !key_inter;
         }
 
         // Defense //
-        else if (Input.GetKeyDown("s") || Input.GetKey("s")) isDefending = true;
-
+        else if (key_defense)
+        {
+            isDefending = true;
+            key_defense = !key_defense;
+        }
         // If none of them pressed, reset all
         else
         {
@@ -258,14 +312,19 @@ public class StickPlayer : MonoBehaviour
             isElevatorActivated = false;
         }
         // If the key is released
-        if (Input.GetKeyUp("s")) isDefending = false;
-
+        if (!key_defense)
+        {
+            isDefending = false;
+            key_defense = !key_defense;
+        }
         
+
     }
 
     private void Actions()
     {
         if (!canAnimate) return; // If we can't animate a new movement, then doesn't care about the input
+
 
         if (isElevatorActivated)
         {
