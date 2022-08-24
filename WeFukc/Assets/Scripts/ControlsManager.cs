@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 public class ControlsManager : MonoBehaviour
 {
     [SerializeField] private PlayerInput input;
+    [SerializeField] private GameObject RebindPanel;
     [Header("Keys_Text")]
     [SerializeField] private TextMeshProUGUI Jump_Key_Text;
     [SerializeField] private TextMeshProUGUI Left_Key_Text;
@@ -35,5 +36,197 @@ public class ControlsManager : MonoBehaviour
         Combo_Key_Text.text = input.Player.Combo.GetBindingDisplayString();
         Ýnteraction_Key_Text.text = input.Player.Ýnteraction.GetBindingDisplayString();
         Defense_Key_Text.text = input.Player.Defense.GetBindingDisplayString();
+    }
+
+    public void Rebind_Jump()
+    {
+        RebindPanel.SetActive(true);
+        input.Player.Jump.Disable();
+        input.Player.Jump.PerformInteractiveRebinding()
+            .WithControlsExcluding("Mouse")
+            .WithCancelingThrough("<Keyboard>/escape")
+            .OnMatchWaitForAnother(0.2f)
+            .OnCancel(op =>
+            {
+                input.Player.Jump.Enable();
+                RebindPanel.SetActive(false);
+            })
+            .OnComplete(callback =>
+            {
+                callback.Dispose();
+                input.Player.Jump.Enable();
+                RebindPanel.SetActive(false);
+                UpdateKeyText();
+            }).Start();
+    }
+
+    public void Rebind_Move_Left()
+    {
+        RebindPanel.SetActive(true);
+        input.Player.Move.Disable();
+        input.Player.Move.PerformInteractiveRebinding(2)
+            .WithControlsExcluding("Mouse")
+            .WithCancelingThrough("<Keyboard>/escape")
+            .OnMatchWaitForAnother(0.2f)
+            .OnCancel(op =>
+            {
+                input.Player.Move.Enable();
+                RebindPanel.SetActive(false);
+            })
+            .OnComplete(callback =>
+            {
+                callback.Dispose();
+                input.Player.Move.Enable();
+                RebindPanel.SetActive(false);
+                UpdateKeyText();
+            }).Start();
+    }
+
+    public void Rebind_Move_Right()
+    {
+        RebindPanel.SetActive(true);
+        input.Player.Move.Disable();
+        input.Player.Move.PerformInteractiveRebinding(1)
+            .WithControlsExcluding("Mouse")
+            .WithCancelingThrough("<Keyboard>/escape")
+            .OnMatchWaitForAnother(0.2f)
+            .OnCancel(op =>
+            {
+                input.Player.Move.Enable();
+                RebindPanel.SetActive(false);
+            })
+            .OnComplete(callback =>
+            {
+                callback.Dispose();
+                input.Player.Move.Enable();
+                RebindPanel.SetActive(false);
+                UpdateKeyText();
+            }).Start();
+    }
+
+    public void Rebind_Punch()
+    {
+        RebindPanel.SetActive(true);
+        input.Player.Punch.Disable();
+        input.Player.Punch.PerformInteractiveRebinding()
+            .WithControlsExcluding("Mouse")
+            .WithCancelingThrough("<Keyboard>/escape")
+            .OnMatchWaitForAnother(0.2f)
+            .OnCancel(op =>
+            {
+                input.Player.Punch.Enable();
+                RebindPanel.SetActive(false);
+            })
+            .OnComplete(callback =>
+            {
+                callback.Dispose();
+                input.Player.Punch.Enable();
+                RebindPanel.SetActive(false);
+                UpdateKeyText();
+            }).Start();
+    }
+
+    public void Rebind_Kick()
+    {
+        RebindPanel.SetActive(true);
+        input.Player.Kick.Disable();
+        input.Player.Kick.PerformInteractiveRebinding()
+            .WithControlsExcluding("Mouse")
+            .WithCancelingThrough("<Keyboard>/escape")
+            .OnMatchWaitForAnother(0.2f)
+            .OnCancel(op =>
+            {
+                input.Player.Kick.Enable();
+                RebindPanel.SetActive(false);
+            })
+            .OnComplete(callback =>
+            {
+                callback.Dispose();
+                input.Player.Kick.Enable();
+                RebindPanel.SetActive(false);
+                UpdateKeyText();
+            }).Start();
+    }
+
+    public void Rebind_Combo()
+    {
+        RebindPanel.SetActive(true);
+        input.Player.Combo.Disable();
+        input.Player.Combo.PerformInteractiveRebinding()
+            .WithControlsExcluding("Mouse")
+            .WithCancelingThrough("<Keyboard>/escape")
+            .OnMatchWaitForAnother(0.2f)
+            .OnCancel(op =>
+            {
+                input.Player.Combo.Enable();
+                RebindPanel.SetActive(false);
+            })
+            .OnComplete(callback =>
+            {
+                callback.Dispose();
+                input.Player.Combo.Enable();
+                RebindPanel.SetActive(false);
+                UpdateKeyText();
+            }).Start();
+    }
+
+    public void Rebind_Interaction()
+    {
+        RebindPanel.SetActive(true);
+        input.Player.Ýnteraction.Disable();
+        input.Player.Ýnteraction.PerformInteractiveRebinding()
+            .WithControlsExcluding("Mouse")
+            .WithCancelingThrough("<Keyboard>/escape")
+            .OnMatchWaitForAnother(0.2f)
+            .OnCancel(op =>
+            {
+                input.Player.Ýnteraction.Enable();
+                RebindPanel.SetActive(false);
+            })
+            .OnComplete(callback =>
+            {
+                callback.Dispose();
+                input.Player.Ýnteraction.Enable();
+                RebindPanel.SetActive(false);
+                UpdateKeyText();
+            }).Start();
+    }
+
+    public void Rebind_Defense()
+    {
+        RebindPanel.SetActive(true);
+        input.Player.Defense.Disable();
+        input.Player.Defense.PerformInteractiveRebinding()
+            .WithControlsExcluding("Mouse")
+            .WithCancelingThrough("<Keyboard>/escape")
+            .OnMatchWaitForAnother(0.2f)
+            .OnCancel(op =>
+            {
+                input.Player.Defense.Enable();
+                RebindPanel.SetActive(false);
+            })
+            .OnComplete(callback =>
+            {
+                callback.Dispose();
+                input.Player.Defense.Enable();
+                RebindPanel.SetActive(false);
+                UpdateKeyText();
+            }).Start();
+    }
+
+    public void OnEnable()
+    {
+        var rebinds = PlayerPrefs.GetString("rebinds");
+        if (!string.IsNullOrEmpty(rebinds))
+        {
+            input.LoadBindingOverridesFromJson(rebinds);
+        }
+        UpdateKeyText();
+    }
+
+    public void SaveRebinds()
+    {
+        var rebinds = input.SaveBindingOverridesAsJson();
+        PlayerPrefs.SetString("rebinds", rebinds);
     }
 }
