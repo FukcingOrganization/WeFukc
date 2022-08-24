@@ -119,6 +119,13 @@ public class StickPlayer : MonoBehaviour
     private void Awake()
     {
         input = new PlayerInput();
+
+        var rebinds = PlayerPrefs.GetString("rebinds");
+        if (!string.IsNullOrEmpty(rebinds))
+        {
+            input.LoadBindingOverridesFromJson(rebinds);
+        }
+
         // Check input keys
         input.Player.Move.performed += ctx => inputXY = ctx.ReadValue<Vector2>();
         input.Player.Move.canceled += ctx => inputXY = ctx.ReadValue<Vector2>();
@@ -130,8 +137,8 @@ public class StickPlayer : MonoBehaviour
         input.Player.Kick.canceled += ctx => key_kick = false;
         input.Player.Combo.started += ctx => key_combo = true;
         input.Player.Combo.canceled += ctx => key_combo = false;
-        input.Player.Ýnteraction.started += ctx => key_inter = true;
-        input.Player.Ýnteraction.canceled += ctx => key_inter = false;
+        input.Player.Interaction.started += ctx => key_inter = true;
+        input.Player.Interaction.canceled += ctx => key_inter = false;
         input.Player.Defense.started += ctx => key_defense = true;
         input.Player.Defense.canceled += ctx => key_defense = false;
 
@@ -231,7 +238,7 @@ public class StickPlayer : MonoBehaviour
 
         // Get the input
         //inputX = Input.GetAxis("Horizontal");
-        inputX = inputXY.x;
+        inputX = -inputXY.x;
         movement = inputX * movementSpeed;
 
         if (!canAnimate) return;

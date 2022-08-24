@@ -16,7 +16,7 @@ public class ControlsManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI Punch_Key_Text;
     [SerializeField] private TextMeshProUGUI Kick_Key_Text;
     [SerializeField] private TextMeshProUGUI Combo_Key_Text;
-    [SerializeField] private TextMeshProUGUI Ýnteraction_Key_Text;
+    [SerializeField] private TextMeshProUGUI Interaction_Key_Text;
     [SerializeField] private TextMeshProUGUI Defense_Key_Text;
 
 
@@ -34,7 +34,7 @@ public class ControlsManager : MonoBehaviour
         Punch_Key_Text.text = input.Player.Punch.GetBindingDisplayString();
         Kick_Key_Text.text = input.Player.Kick.GetBindingDisplayString();
         Combo_Key_Text.text = input.Player.Combo.GetBindingDisplayString();
-        Ýnteraction_Key_Text.text = input.Player.Ýnteraction.GetBindingDisplayString();
+        Interaction_Key_Text.text = input.Player.Interaction.GetBindingDisplayString();
         Defense_Key_Text.text = input.Player.Defense.GetBindingDisplayString();
     }
 
@@ -173,20 +173,20 @@ public class ControlsManager : MonoBehaviour
     public void Rebind_Interaction()
     {
         RebindPanel.SetActive(true);
-        input.Player.Ýnteraction.Disable();
-        input.Player.Ýnteraction.PerformInteractiveRebinding()
+        input.Player.Interaction.Disable();
+        input.Player.Interaction.PerformInteractiveRebinding()
             .WithControlsExcluding("Mouse")
             .WithCancelingThrough("<Keyboard>/escape")
             .OnMatchWaitForAnother(0.2f)
             .OnCancel(op =>
             {
-                input.Player.Ýnteraction.Enable();
+                input.Player.Interaction.Enable();
                 RebindPanel.SetActive(false);
             })
             .OnComplete(callback =>
             {
                 callback.Dispose();
-                input.Player.Ýnteraction.Enable();
+                input.Player.Interaction.Enable();
                 RebindPanel.SetActive(false);
                 UpdateKeyText();
             }).Start();

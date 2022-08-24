@@ -73,7 +73,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""İnteraction"",
+                    ""name"": ""Interaction"",
                     ""type"": ""Button"",
                     ""id"": ""814a672a-3e44-49fc-a89d-018da9867452"",
                     ""expectedControlType"": ""Button"",
@@ -176,7 +176,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
-                    ""action"": ""İnteraction"",
+                    ""action"": ""Interaction"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -264,7 +264,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         m_Player_Punch = m_Player.FindAction("Punch", throwIfNotFound: true);
         m_Player_Kick = m_Player.FindAction("Kick", throwIfNotFound: true);
         m_Player_Combo = m_Player.FindAction("Combo", throwIfNotFound: true);
-        m_Player_İnteraction = m_Player.FindAction("İnteraction", throwIfNotFound: true);
+        m_Player_Interaction = m_Player.FindAction("Interaction", throwIfNotFound: true);
         m_Player_Defense = m_Player.FindAction("Defense", throwIfNotFound: true);
     }
 
@@ -330,7 +330,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Punch;
     private readonly InputAction m_Player_Kick;
     private readonly InputAction m_Player_Combo;
-    private readonly InputAction m_Player_İnteraction;
+    private readonly InputAction m_Player_Interaction;
     private readonly InputAction m_Player_Defense;
     public struct PlayerActions
     {
@@ -341,7 +341,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         public InputAction @Punch => m_Wrapper.m_Player_Punch;
         public InputAction @Kick => m_Wrapper.m_Player_Kick;
         public InputAction @Combo => m_Wrapper.m_Player_Combo;
-        public InputAction @İnteraction => m_Wrapper.m_Player_İnteraction;
+        public InputAction @Interaction => m_Wrapper.m_Player_Interaction;
         public InputAction @Defense => m_Wrapper.m_Player_Defense;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
@@ -367,9 +367,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Combo.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCombo;
                 @Combo.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCombo;
                 @Combo.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnCombo;
-                @İnteraction.started -= m_Wrapper.m_PlayerActionsCallbackInterface.Onİnteraction;
-                @İnteraction.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.Onİnteraction;
-                @İnteraction.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.Onİnteraction;
+                @Interaction.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnInteraction;
+                @Interaction.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnInteraction;
+                @Interaction.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnInteraction;
                 @Defense.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDefense;
                 @Defense.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDefense;
                 @Defense.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDefense;
@@ -392,9 +392,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Combo.started += instance.OnCombo;
                 @Combo.performed += instance.OnCombo;
                 @Combo.canceled += instance.OnCombo;
-                @İnteraction.started += instance.Onİnteraction;
-                @İnteraction.performed += instance.Onİnteraction;
-                @İnteraction.canceled += instance.Onİnteraction;
+                @Interaction.started += instance.OnInteraction;
+                @Interaction.performed += instance.OnInteraction;
+                @Interaction.canceled += instance.OnInteraction;
                 @Defense.started += instance.OnDefense;
                 @Defense.performed += instance.OnDefense;
                 @Defense.canceled += instance.OnDefense;
@@ -454,7 +454,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         void OnPunch(InputAction.CallbackContext context);
         void OnKick(InputAction.CallbackContext context);
         void OnCombo(InputAction.CallbackContext context);
-        void Onİnteraction(InputAction.CallbackContext context);
+        void OnInteraction(InputAction.CallbackContext context);
         void OnDefense(InputAction.CallbackContext context);
     }
 }

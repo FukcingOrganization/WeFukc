@@ -6495,7 +6495,7 @@ MonoBehaviour:
   Punch_Key_Text: {fileID: 1231827007}
   Kick_Key_Text: {fileID: 1636054662}
   Combo_Key_Text: {fileID: 727495261}
-  "\u0130nteraction_Key_Text": {fileID: 834999728}
+  Interaction_Key_Text: {fileID: 834999728}
   Defense_Key_Text: {fileID: 1063503072}
 --- !u!1 &1138638190
 GameObject:
