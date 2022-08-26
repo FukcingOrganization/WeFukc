@@ -109,12 +109,12 @@ public class StickPlayer : MonoBehaviour
     private const string SNARE_BIG = "SnareBig";
 
 
-    private bool key_jump = false;
-    private bool key_punch = false;
-    private bool key_kick = false;
-    private bool key_combo = false;
-    private bool key_inter = false;
-    private bool key_defense = false;
+    private bool key_jump;
+    private bool key_punch;
+    private bool key_kick;
+    private bool key_combo;
+    private bool key_inter;
+    private bool key_defense;
 
     private void Awake()
     {
@@ -306,6 +306,7 @@ public class StickPlayer : MonoBehaviour
         else if (key_defense)
         {
             isDefending = true;
+            key_defense = !key_defense;
         }
         // If none of them pressed, reset all
         else
@@ -317,10 +318,13 @@ public class StickPlayer : MonoBehaviour
             isKicking = false;
             isElevatorActivated = false;
         }
+        // If the key is released
         if (!key_defense)
         {
             isDefending = false;
+            key_defense = !key_defense;
         }
+        
 
     }
 
