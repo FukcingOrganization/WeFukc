@@ -89,6 +89,15 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Fire"",
+                    ""type"": ""Button"",
+                    ""id"": ""867de2c6-4e0d-494f-b8b7-26e70c210296"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -190,6 +199,17 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""action"": ""Defense"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8220f7ba-7655-4960-a929-965db9d9a40d"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Fire"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -266,6 +286,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         m_Player_Combo = m_Player.FindAction("Combo", throwIfNotFound: true);
         m_Player_Interaction = m_Player.FindAction("Interaction", throwIfNotFound: true);
         m_Player_Defense = m_Player.FindAction("Defense", throwIfNotFound: true);
+        m_Player_Fire = m_Player.FindAction("Fire", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -332,6 +353,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Combo;
     private readonly InputAction m_Player_Interaction;
     private readonly InputAction m_Player_Defense;
+    private readonly InputAction m_Player_Fire;
     public struct PlayerActions
     {
         private @PlayerInput m_Wrapper;
@@ -343,6 +365,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         public InputAction @Combo => m_Wrapper.m_Player_Combo;
         public InputAction @Interaction => m_Wrapper.m_Player_Interaction;
         public InputAction @Defense => m_Wrapper.m_Player_Defense;
+        public InputAction @Fire => m_Wrapper.m_Player_Fire;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -373,6 +396,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Defense.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDefense;
                 @Defense.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDefense;
                 @Defense.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDefense;
+                @Fire.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire;
+                @Fire.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire;
+                @Fire.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnFire;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -398,6 +424,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Defense.started += instance.OnDefense;
                 @Defense.performed += instance.OnDefense;
                 @Defense.canceled += instance.OnDefense;
+                @Fire.started += instance.OnFire;
+                @Fire.performed += instance.OnFire;
+                @Fire.canceled += instance.OnFire;
             }
         }
     }
@@ -456,5 +485,6 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         void OnCombo(InputAction.CallbackContext context);
         void OnInteraction(InputAction.CallbackContext context);
         void OnDefense(InputAction.CallbackContext context);
+        void OnFire(InputAction.CallbackContext context);
     }
 }

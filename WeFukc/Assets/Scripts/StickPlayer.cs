@@ -24,6 +24,9 @@ public class StickPlayer : MonoBehaviour
     [SerializeField] private float kickHitPoint = 5f;
     [SerializeField] private float flyingKickHitPoint = 15f;
     [SerializeField] private float turningKickHitPoint = 25f;
+    [SerializeField] private float knifeHitPoint = 15f;
+    [SerializeField] private float batHitPoint = 25f;
+    [SerializeField] private float swordHitPoint = 50f;
 
     [Header("Death Components")]
     [SerializeField] private BoxCollider2D characterCollider;
@@ -88,11 +91,16 @@ public class StickPlayer : MonoBehaviour
     private bool allowMissSound = true;
     private float missSoundDelay = 1f;
 
+    // Weapon use vars
+    private bool isRunningSword = false;
+    private bool isSword = false;
+
     // Other vars
     private bool isElevatorActivated = false;
     private bool fixFukcingPosBug = false;
     [SerializeField] private bool hasKey = true;
 
+    // Animations
     private const string SPEED = "Speed"; 
     private const string ON_AIR= "OnAir"; 
     private const string PUNCH_HIT = "PunchHit"; 
@@ -104,6 +112,11 @@ public class StickPlayer : MonoBehaviour
     private const string DAMAGE_HEAD = "DamageHead"; 
     private const string DAMAGE_DOWN = "DamageDown"; 
     private const string KICK_FALL = "KickFall";
+    private const string RUNNING_SWORD = "RunningSword";
+    private const string SWORD = "Sword";
+    private const string HAS_WEAPON = "HasWepaon";
+
+    // Damage Types
     private const string SNARE_HEAD = "SnareHead";
     private const string SNARE_DOWN = "SnareDown";
     private const string SNARE_BIG = "SnareBig";
@@ -115,6 +128,7 @@ public class StickPlayer : MonoBehaviour
     private bool key_combo = false;
     private bool key_inter = false;
     private bool key_defense = false;
+    private bool key_fire = false;
 
     private void Awake()
     {
@@ -141,6 +155,8 @@ public class StickPlayer : MonoBehaviour
         input.Player.Interaction.canceled += ctx => key_inter = false;
         input.Player.Defense.started += ctx => key_defense = true;
         input.Player.Defense.canceled += ctx => key_defense = false;
+        input.Player.Fire.started += ctx => key_fire = true;
+        input.Player.Fire.canceled += ctx => key_fire = false;
 
     }
     private void Start()
@@ -253,8 +269,15 @@ public class StickPlayer : MonoBehaviour
         
         // Gettin velocity
         velocityABS = Mathf.Abs(rigidbody.velocity.x);
+
         ///// Fight /////
         if (!grounded) return;  // On air, not get fighting input
+
+
+        // Weapon Selection
+        // if we have weapon
+        animator.SetBool(HAS_WEAPON, true);
+
         // Punching // 
         if (key_punch && velocityABS > 2.5f)
         {
@@ -289,6 +312,23 @@ public class StickPlayer : MonoBehaviour
             if (stamina > kickHitPoint) isKicking = true;
             else if (!isHighlighting) StartCoroutine(StaminaHighlight());
             key_kick = !key_kick;
+        }
+
+        // Weapons
+        else if (key_fire && grounded)
+        {
+            if (velocityABS > 2f)
+            {
+                // which weapon?
+                // if sword?
+                isRunningSword = true;
+            }
+            else
+            {
+                // which wepaon?
+                isSword = true;
+            }
+            key_fire = !key_fire;
         }
 
         // Elevator Check - But not after activated!
@@ -466,6 +506,22 @@ public class StickPlayer : MonoBehaviour
 
             FindObjectOfType<AudioManager>().PlaySFX("Jump");
         }
+        if (isRunningSword)
+        {
+            animator.SetTrigger(RUNNING_SWORD);
+            isRunningSword = false;
+            canAnimate = false;
+
+            FindObjectOfType<AudioManager>().PlaySFX("Attack_Effort");
+        }
+        if (isSword)
+        {
+            animator.SetTrigger(SWORD);
+            isSword = false;
+            canAnimate = false;
+
+            FindObjectOfType<AudioManager>().PlaySFX("Attack_Effort");
+        }
         #endregion
 
 
@@ -627,6 +683,28 @@ public class StickPlayer : MonoBehaviour
     private void StopCharacter()
     {
         rigidbody.velocity = Vector2.zero;
+    }
+    private void RunningSwordHit()
+    {   // Punch run uses the same location as normal punch but has different hit points
+        // 2x increased range than normal because otherwise it goes fast and miss.
+        hitEnemies = Physics2D.OverlapCircleAll
+            (punchHitLocation.position, punchHitRange * 2f, enemyLayers);
+
+        bool damageFromRight;
+
+        foreach (Collider2D enemy in hitEnemies)
+        {
+            if ((transform.position.x - enemy.transform.position.x) > 0) damageFromRight = true;
+            else damageFromRight = false;
+            enemy.GetComponent<StickBot>().TakenDamage(PUNCH_RUN, swordHitPoint, damageFromRight);
+        }
+
+        // Flygin Kick and running punch has allowAttackSound restriction to avoid multiple sounds in one shot
+        if (allowMissSound)
+        {
+            if (hitEnemies.Length < 1) FindObjectOfType<AudioManager>().PlaySFX("Attack_Miss");
+            allowMissSound = false;
+        }
     }
 
     ///  ************************   ///
