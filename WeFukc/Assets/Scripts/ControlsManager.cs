@@ -18,6 +18,9 @@ public class ControlsManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI Combo_Key_Text;
     [SerializeField] private TextMeshProUGUI Interaction_Key_Text;
     [SerializeField] private TextMeshProUGUI Defense_Key_Text;
+    [SerializeField] private TextMeshProUGUI Attack_Key_Text;
+    [SerializeField] private TextMeshProUGUI NextWp_Key_Text;
+    [SerializeField] private TextMeshProUGUI PreviousWp_Key_Text;
 
 
     private void Awake()
@@ -36,6 +39,10 @@ public class ControlsManager : MonoBehaviour
         Combo_Key_Text.text = input.Player.Combo.GetBindingDisplayString();
         Interaction_Key_Text.text = input.Player.Interaction.GetBindingDisplayString();
         Defense_Key_Text.text = input.Player.Defense.GetBindingDisplayString();
+        Attack_Key_Text.text = input.Player.Fire.GetBindingDisplayString();
+        NextWp_Key_Text.text = input.Player.Weapon_Switch_Next.GetBindingDisplayString();
+        PreviousWp_Key_Text.text = input.Player.Weapon_Switch_Previous.GetBindingDisplayString();
+
     }
 
     public void Rebind_Jump()
@@ -209,6 +216,71 @@ public class ControlsManager : MonoBehaviour
             {
                 callback.Dispose();
                 input.Player.Defense.Enable();
+                RebindPanel.SetActive(false);
+                UpdateKeyText();
+            }).Start();
+    }
+
+    public void Rebind_Attack()
+    {
+        RebindPanel.SetActive(true);
+        input.Player.Fire.Disable();
+        input.Player.Fire.PerformInteractiveRebinding()
+            .WithCancelingThrough("<Keyboard>/escape")
+            .OnMatchWaitForAnother(0.2f)
+            .OnCancel(op =>
+            {
+                input.Player.Fire.Enable();
+                RebindPanel.SetActive(false);
+            })
+            .OnComplete(callback =>
+            {
+                callback.Dispose();
+                input.Player.Fire.Enable();
+                RebindPanel.SetActive(false);
+                UpdateKeyText();
+            }).Start();
+    }
+
+    public void Rebind_NextWp()
+    {
+        RebindPanel.SetActive(true);
+        input.Player.Weapon_Switch_Next.Disable();
+        input.Player.Weapon_Switch_Next.PerformInteractiveRebinding()
+            .WithControlsExcluding("Mouse")
+            .WithCancelingThrough("<Keyboard>/escape")
+            .OnMatchWaitForAnother(0.2f)
+            .OnCancel(op =>
+            {
+                input.Player.Weapon_Switch_Next.Enable();
+                RebindPanel.SetActive(false);
+            })
+            .OnComplete(callback =>
+            {
+                callback.Dispose();
+                input.Player.Weapon_Switch_Next.Enable();
+                RebindPanel.SetActive(false);
+                UpdateKeyText();
+            }).Start();
+    }
+
+    public void Rebind_PreviousWp()
+    {
+        RebindPanel.SetActive(true);
+        input.Player.Weapon_Switch_Previous.Disable();
+        input.Player.Weapon_Switch_Previous.PerformInteractiveRebinding()
+            .WithControlsExcluding("Mouse")
+            .WithCancelingThrough("<Keyboard>/escape")
+            .OnMatchWaitForAnother(0.2f)
+            .OnCancel(op =>
+            {
+                input.Player.Weapon_Switch_Previous.Enable();
+                RebindPanel.SetActive(false);
+            })
+            .OnComplete(callback =>
+            {
+                callback.Dispose();
+                input.Player.Weapon_Switch_Previous.Enable();
                 RebindPanel.SetActive(false);
                 UpdateKeyText();
             }).Start();
