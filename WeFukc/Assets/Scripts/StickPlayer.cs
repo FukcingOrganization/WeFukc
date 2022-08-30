@@ -52,6 +52,13 @@ public class StickPlayer : MonoBehaviour
     [SerializeField] private LayerMask elevatorLayer;
     [SerializeField] private Image keyImage;
 
+    [Header("Weapons")]
+    [SerializeField] private Image Current_W_icon;
+    [SerializeField] private Sprite w_icon_punch, w_icon_sword, w_icon_bat;
+    [SerializeField] private GameObject Weapons_Punch;
+    [SerializeField] private GameObject Weapons_Sword;
+    [SerializeField] private GameObject Weapons_Bat;
+
     // Other game objects and components
     private Animator animator;
     private Rigidbody2D rigidbody;
@@ -129,6 +136,11 @@ public class StickPlayer : MonoBehaviour
     private bool key_inter = false;
     private bool key_defense = false;
     private bool key_fire = false;
+    private bool key_w_next = false;
+    private bool key_w_previous = false;
+
+    private GameObject P_Weapon_1, P_Weapon_2, P_Weapon_3;
+    private int Current_Weapon;
 
     private void Awake()
     {
@@ -139,6 +151,12 @@ public class StickPlayer : MonoBehaviour
         {
             input.LoadBindingOverridesFromJson(rebinds);
         }
+
+        // Get weapons from playerpref
+        P_Weapon_1 = Weapons_Punch;
+        P_Weapon_2 = Weapons_Sword;
+        P_Weapon_3 = Weapons_Bat;
+        Current_Weapon = 1;
 
         // Check input keys
         input.Player.Move.performed += ctx => inputXY = ctx.ReadValue<Vector2>();
@@ -157,6 +175,8 @@ public class StickPlayer : MonoBehaviour
         input.Player.Defense.canceled += ctx => key_defense = false;
         input.Player.Fire.started += ctx => key_fire = true;
         input.Player.Fire.canceled += ctx => key_fire = false;
+        input.Player.Weapon_Switch_Next.started += ctx => key_w_next = true;
+        input.Player.Weapon_Switch_Previous.started += ctx => key_w_previous = true;
 
     }
     private void Start()
@@ -259,7 +279,65 @@ public class StickPlayer : MonoBehaviour
 
         if (!canAnimate) return;
 
-        
+        // Switch weapons
+
+        if (key_w_next)
+        {
+            if(Current_Weapon == 1)
+            {
+                Current_W_icon.sprite = w_icon_sword;
+                P_Weapon_2.SetActive(true);
+                P_Weapon_1.SetActive(false);
+                P_Weapon_3.SetActive(false);
+                Current_Weapon = 2;
+            }
+            else if (Current_Weapon == 2)
+            {
+                Current_W_icon.sprite = w_icon_bat;
+                P_Weapon_3.SetActive(true);
+                P_Weapon_1.SetActive(false);
+                P_Weapon_2.SetActive(false);
+                Current_Weapon = 3;
+            }
+            else if (Current_Weapon == 3)
+            {
+                Current_W_icon.sprite = w_icon_punch;
+                P_Weapon_1.SetActive(true);
+                P_Weapon_2.SetActive(false);
+                P_Weapon_3.SetActive(false);
+                Current_Weapon = 1;
+            }
+            key_w_next = !key_w_next;
+        }
+
+        if (key_w_previous)
+        {
+            if (Current_Weapon == 1)
+            {
+                Current_W_icon.sprite = w_icon_bat;
+                P_Weapon_3.SetActive(true);
+                P_Weapon_1.SetActive(false);
+                P_Weapon_2.SetActive(false);
+                Current_Weapon = 3;
+            }
+            else if (Current_Weapon == 3)
+            {
+                Current_W_icon.sprite = w_icon_sword;
+                P_Weapon_2.SetActive(true);
+                P_Weapon_1.SetActive(false);
+                P_Weapon_3.SetActive(false);
+                Current_Weapon = 2;
+            }
+            else if (Current_Weapon == 2)
+            {
+                Current_W_icon.sprite = w_icon_punch;
+                P_Weapon_1.SetActive(true);
+                P_Weapon_3.SetActive(false);
+                P_Weapon_2.SetActive(false);
+                Current_Weapon = 1;
+            }
+            key_w_previous = !key_w_previous;
+        }
 
         if (key_jump && grounded && stamina > staminaJump)
         {

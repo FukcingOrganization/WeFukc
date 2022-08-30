@@ -976,7 +976,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: cae2e8ec2e4c4fe4e95e418ffd74f283, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c406c25ae17e9d14491a94531e38428d, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1221,6 +1221,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 4810615600950347763}
   - {fileID: 1357636474}
   - {fileID: 1628895645}
   m_Father: {fileID: 1789011467158080549}
@@ -1318,7 +1319,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1357636474
 Transform:
   m_ObjectHideFlags: 0
@@ -1332,7 +1333,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1334287727}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 230}
 --- !u!212 &1357636475
 SpriteRenderer:
@@ -1627,7 +1628,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1334287727}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -79.6}
 --- !u!212 &1628895646
 SpriteRenderer:
@@ -2139,6 +2140,37 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &1029943365829029718
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4810615600950347763}
+  m_Layer: 3
+  m_Name: Punch
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &4810615600950347763
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1029943365829029718}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1334287727}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1685107700221335287
 GameObject:
   m_ObjectHideFlags: 0
@@ -3652,6 +3684,13 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   keyImage: {fileID: 7332957425274201286}
+  Current_W_icon: {fileID: 1108635848}
+  w_icon_punch: {fileID: 21300000, guid: c406c25ae17e9d14491a94531e38428d, type: 3}
+  w_icon_sword: {fileID: 21300000, guid: cae2e8ec2e4c4fe4e95e418ffd74f283, type: 3}
+  w_icon_bat: {fileID: 21300000, guid: 11cd16895ea0cde4881fa1a4ea6c4894, type: 3}
+  Weapons_Punch: {fileID: 1029943365829029718}
+  Weapons_Sword: {fileID: 1357636473}
+  Weapons_Bat: {fileID: 1628895644}
   stamina: 0
   staminaJump: 3
   staminaSliderImage: {fileID: 716385891}
@@ -3713,6 +3752,14 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 867de2c6-4e0d-494f-b8b7-26e70c210296
     m_ActionName: Player/Fire[/Mouse/leftButton]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0bfe1ae2-7cba-41be-9d26-d8ab760c3f28
+    m_ActionName: Player/Weapon_Switch_Next[/Keyboard/e]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 13101624-c9e9-463f-816d-a89925f0da6a
+    m_ActionName: Player/Weapon_Switch_Previous[/Keyboard/q]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
