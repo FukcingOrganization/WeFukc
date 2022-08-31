@@ -280,7 +280,6 @@ public class StickPlayer : MonoBehaviour
         if (!canAnimate) return;
 
         // Switch weapons
-
         if (key_w_next)
         {
             if(Current_Weapon == 1)
@@ -339,14 +338,17 @@ public class StickPlayer : MonoBehaviour
             key_w_previous = !key_w_previous;
         }
 
+
         if (key_jump && grounded && stamina > staminaJump)
         {
             isJumping = true;
             key_jump = !key_jump;
         }
         
+
         // Gettin velocity
         velocityABS = Mathf.Abs(rigidbody.velocity.x);
+
 
         ///// Fight /////
         if (!grounded) return;  // On air, not get fighting input
@@ -393,7 +395,7 @@ public class StickPlayer : MonoBehaviour
         }
 
         // Weapons
-        else if (key_fire && grounded)
+        else if (key_fire && grounded && Current_Weapon != 1)
         {
             if (velocityABS > 2f)
             {
@@ -588,7 +590,7 @@ public class StickPlayer : MonoBehaviour
         {
             animator.SetTrigger(RUNNING_SWORD);
             isRunningSword = false;
-            canAnimate = false;
+            // CLOSED - I put it into the animation. canAnimate = false;
 
             FindObjectOfType<AudioManager>().PlaySFX("Attack_Effort");
         }
@@ -766,7 +768,7 @@ public class StickPlayer : MonoBehaviour
     {   // Punch run uses the same location as normal punch but has different hit points
         // 2x increased range than normal because otherwise it goes fast and miss.
         hitEnemies = Physics2D.OverlapCircleAll
-            (punchHitLocation.position, punchHitRange * 2f, enemyLayers);
+            (punchHitLocation.position, punchHitRange * 4f, enemyLayers);
 
         bool damageFromRight;
 
@@ -775,13 +777,6 @@ public class StickPlayer : MonoBehaviour
             if ((transform.position.x - enemy.transform.position.x) > 0) damageFromRight = true;
             else damageFromRight = false;
             enemy.GetComponent<StickBot>().TakenDamage(PUNCH_RUN, swordHitPoint, damageFromRight);
-        }
-
-        // Flygin Kick and running punch has allowAttackSound restriction to avoid multiple sounds in one shot
-        if (allowMissSound)
-        {
-            if (hitEnemies.Length < 1) FindObjectOfType<AudioManager>().PlaySFX("Attack_Miss");
-            allowMissSound = false;
         }
     }
 
