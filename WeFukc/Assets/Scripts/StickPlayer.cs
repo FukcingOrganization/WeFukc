@@ -40,10 +40,12 @@ public class StickPlayer : MonoBehaviour
     [SerializeField] private Transform kickHitLocation;
     [SerializeField] private Transform flyingKickHitLocation;
     [SerializeField] private Transform turningKickHitLocation;
+    [SerializeField] private Transform swordHitLocation;
     [SerializeField] private float punchHitRange = 1f;
     [SerializeField] private float kickHitRange = 0.8f;
     [SerializeField] private float flyingKickHitRange = 1f;
     [SerializeField] private float turningKickHitRange = 1f;
+    [SerializeField] private float swordHitRange = 1f;
     [SerializeField] private LayerMask enemyLayers;
     [SerializeField] private float takenPunchMove = 3f;
     [SerializeField] private float takenKickMove = 6f;
@@ -121,7 +123,7 @@ public class StickPlayer : MonoBehaviour
     private const string KICK_FALL = "KickFall";
     private const string RUNNING_SWORD = "RunningSword";
     private const string SWORD = "Sword";
-    private const string HAS_WEAPON = "HasWepaon";
+    private const string HAS_WEAPON = "HasWeapon";
 
     // Damage Types
     private const string SNARE_HEAD = "SnareHead";
@@ -397,7 +399,7 @@ public class StickPlayer : MonoBehaviour
         // Weapons
         else if (key_fire && grounded && Current_Weapon != 1)
         {
-            if (velocityABS > 2f)
+            if (velocityABS > 1f)
             {
                 // which weapon?
                 // if sword?
@@ -590,7 +592,7 @@ public class StickPlayer : MonoBehaviour
         {
             animator.SetTrigger(RUNNING_SWORD);
             isRunningSword = false;
-            // CLOSED - I put it into the animation. canAnimate = false;
+            canAnimate = false;
 
             FindObjectOfType<AudioManager>().PlaySFX("Attack_Effort");
         }
@@ -768,7 +770,7 @@ public class StickPlayer : MonoBehaviour
     {   // Punch run uses the same location as normal punch but has different hit points
         // 2x increased range than normal because otherwise it goes fast and miss.
         hitEnemies = Physics2D.OverlapCircleAll
-            (punchHitLocation.position, punchHitRange * 4f, enemyLayers);
+            (swordHitLocation.position, swordHitRange, enemyLayers);
 
         bool damageFromRight;
 
