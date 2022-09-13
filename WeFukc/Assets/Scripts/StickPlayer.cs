@@ -56,10 +56,12 @@ public class StickPlayer : MonoBehaviour
 
     [Header("Weapons")]
     [SerializeField] private Image Current_W_icon;
-    [SerializeField] private Sprite w_icon_punch, w_icon_sword, w_icon_bat;
+    [SerializeField] private Sprite w_icon_punch, w_icon_sword, w_icon_bat, w_icon_pistol;
+    [SerializeField] private Sprite p_weapon_1_icon, p_weapon_2_icon, p_weapon_3_icon;
     [SerializeField] private GameObject Weapons_Punch;
     [SerializeField] private GameObject Weapons_Sword;
     [SerializeField] private GameObject Weapons_Bat;
+    [SerializeField] private GameObject Weapons_Pistol;
 
     // Other game objects and components
     private Animator animator;
@@ -156,8 +158,11 @@ public class StickPlayer : MonoBehaviour
 
         // Get weapons from playerpref
         P_Weapon_1 = Weapons_Punch;
+        p_weapon_1_icon = w_icon_punch;
         P_Weapon_2 = Weapons_Sword;
-        P_Weapon_3 = Weapons_Bat;
+        p_weapon_2_icon = w_icon_sword;
+        P_Weapon_3 = Weapons_Pistol;
+        p_weapon_3_icon = w_icon_pistol;
         Current_Weapon = 1;
 
         // Check input keys
@@ -286,7 +291,7 @@ public class StickPlayer : MonoBehaviour
         {
             if(Current_Weapon == 1)
             {
-                Current_W_icon.sprite = w_icon_sword;
+                Current_W_icon.sprite = p_weapon_2_icon;
                 P_Weapon_2.SetActive(true);
                 P_Weapon_1.SetActive(false);
                 P_Weapon_3.SetActive(false);
@@ -294,7 +299,7 @@ public class StickPlayer : MonoBehaviour
             }
             else if (Current_Weapon == 2)
             {
-                Current_W_icon.sprite = w_icon_bat;
+                Current_W_icon.sprite = p_weapon_3_icon;
                 P_Weapon_3.SetActive(true);
                 P_Weapon_1.SetActive(false);
                 P_Weapon_2.SetActive(false);
@@ -302,7 +307,7 @@ public class StickPlayer : MonoBehaviour
             }
             else if (Current_Weapon == 3)
             {
-                Current_W_icon.sprite = w_icon_punch;
+                Current_W_icon.sprite = p_weapon_1_icon;
                 P_Weapon_1.SetActive(true);
                 P_Weapon_2.SetActive(false);
                 P_Weapon_3.SetActive(false);
