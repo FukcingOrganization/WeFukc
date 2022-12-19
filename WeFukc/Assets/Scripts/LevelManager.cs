@@ -16,20 +16,14 @@ public class LevelManager : MonoBehaviour
 
     [Header("Main Menu")]
     [SerializeField] private bool mainMenu = false;
-    [SerializeField] private Canvas menu_menuCanvas;
-    [SerializeField] private Canvas menu_levelCanvas;
-    [SerializeField] private Canvas menu_optionsCanvas;
-    [SerializeField] private Canvas menu_controlsCanvas;
+    [SerializeField] private Canvas[] menuCanvas;
     [SerializeField] private TextMeshProUGUI menu_playerName;
     [SerializeField] private GameObject menu_playerNameInputUI;
     [SerializeField] private GameObject menu_welcomePlayerUI;
     [SerializeField] private TMP_InputField menu_playerNameInput;
-    private bool menu_levelCanvasActive = false;
-    private bool menu_optionsCanvasActive = false;
-    private bool menu_controlsCanvasActive = false;
     [SerializeField] private GameObject[] levels;
 
-
+    private int activeMenuCanvas;
     private AudioManager audioManager;
     private bool levelStarted = false;
 
@@ -59,7 +53,6 @@ public class LevelManager : MonoBehaviour
 
             // PlayerPrefs.DeleteKey("playerName"); // Debug only
 
-            DisplayPlayerName();
             CheckLevelAchievements();
         }
     }
@@ -96,54 +89,11 @@ public class LevelManager : MonoBehaviour
 
 
     //  ***** Main Menu Methods *****   //
-    public void ToggleLevelCanvas()
+    public void ToggleMenuCanvas(int openCanvasNumber)
     {
-        if (menu_levelCanvasActive)   // if menu canvas active, open level canvas, close the menu canvas
-        {
-            menu_levelCanvas.gameObject.SetActive(false);
-            menu_menuCanvas.gameObject.SetActive(true);
-            DisplayPlayerName();
-        }
-        else  // and vice versa
-        {
-            menu_levelCanvas.gameObject.SetActive(true);
-            menu_menuCanvas.gameObject.SetActive(false);
-        }
-
-        menu_levelCanvasActive = !menu_levelCanvasActive;
-    }
-    public void ToggleOptionCanvas()
-    {
-        if (menu_optionsCanvasActive)   // if options canvas active, open option canvas, close the menu canvas
-        {
-            menu_optionsCanvas.gameObject.SetActive(false);
-            menu_menuCanvas.gameObject.SetActive(true);
-            DisplayPlayerName();
-        }
-        else  // and vice versa
-        {
-            menu_optionsCanvas.gameObject.SetActive(true);
-            menu_menuCanvas.gameObject.SetActive(false);
-            CheckLevelAchievements();
-        }
-
-        menu_optionsCanvasActive = !menu_optionsCanvasActive;
-    }
-
-    public void ToggleControlsCanvas()
-    {
-        if(menu_controlsCanvasActive) // if controls canvas active , open option canvas close controls canvas
-        {
-            menu_controlsCanvas.gameObject.SetActive(false);
-            menu_optionsCanvas.gameObject.SetActive(true);
-        }
-        else // and vice versa
-        {
-            menu_controlsCanvas.gameObject.SetActive(true);
-            menu_optionsCanvas.gameObject.SetActive(false);
-        }
-
-        menu_controlsCanvasActive = !menu_controlsCanvasActive;
+        menuCanvas[activeMenuCanvas].gameObject.SetActive(false);   // Close the curren canvas
+        menuCanvas[openCanvasNumber].gameObject.SetActive(true);    // Open the new one
+        activeMenuCanvas = openCanvasNumber;                        // Save the new one as current
     }
 
     // Reset name and level achivements
