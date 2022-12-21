@@ -20,6 +20,9 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private Canvas[] profileCanvas;
     [SerializeField] private Canvas[] electionsCanvas;
     [SerializeField] private Canvas[] daoCanvas;
+    [SerializeField] private GameObject[] profileAnims;
+    [SerializeField] private GameObject[] electionAnims;
+    [SerializeField] private GameObject[] daoAnims;
     [SerializeField] private TextMeshProUGUI menu_playerName;
     [SerializeField] private GameObject menu_playerNameInputUI;
     [SerializeField] private GameObject menu_welcomePlayerUI;
@@ -109,21 +112,33 @@ public class LevelManager : MonoBehaviour
 
     public void OpenProfileCanvas(int openCanvasNumber)
     {
-        profileCanvas[activeProfileCanvas].gameObject.SetActive(false);   // Close the curren canvas
-        profileCanvas[openCanvasNumber].gameObject.SetActive(true);    // Open the new one
-        activeProfileCanvas = openCanvasNumber;                        // Save the new one as current
+        profileCanvas[activeProfileCanvas].gameObject.SetActive(false);     // Close the curren canvas
+        profileCanvas[openCanvasNumber].gameObject.SetActive(true);         // Open the new one
+
+        profileAnims[activeProfileCanvas].gameObject.SetActive(false);      // Close the current anim
+        profileAnims[openCanvasNumber].gameObject.SetActive(true);          // Open the new one
+
+        activeProfileCanvas = openCanvasNumber;                              // Save the new one as current
     }
 
     public void OpenElectionsCanvas(int openCanvasNumber)
     {
         electionsCanvas[activeElectionsCanvas].gameObject.SetActive(false);   // Close the curren canvas
         electionsCanvas[openCanvasNumber].gameObject.SetActive(true);    // Open the new one
+
+        electionAnims[activeElectionsCanvas].gameObject.SetActive(false);      // Close the current anim
+        electionAnims[openCanvasNumber].gameObject.SetActive(true);          // Open the new one
+
         activeElectionsCanvas = openCanvasNumber;                        // Save the new one as current
     }
     public void OpenDaoCanvas(int openCanvasNumber)
     {
         daoCanvas[activeDaoCanvas].gameObject.SetActive(false);   // Close the curren canvas
         daoCanvas[openCanvasNumber].gameObject.SetActive(true);    // Open the new one
+
+        daoAnims[activeDaoCanvas].gameObject.SetActive(false);      // Close the current anim
+        daoAnims[openCanvasNumber].gameObject.SetActive(true);          // Open the new one
+
         activeDaoCanvas = openCanvasNumber;                        // Save the new one as current
     }
 

@@ -4,28 +4,33 @@ using UnityEngine;
 
 public class ViewPanel : MonoBehaviour
 {
-    [SerializeField] float initialHeight;
-    [SerializeField] float initialPosY;
     [SerializeField] float addHeight;
-    [SerializeField] float subtractPosY;
-    [SerializeField] float excludeCount = 4f;
+    [SerializeField] float columnNumber;
+    [SerializeField] float noScrollCapacity;
+    [SerializeField] float testObjects;
 
     [SerializeField] GameObject container;
- 
+
+    RectTransform initialRect;
+    Transform initialTransform;
 
     void Start()
     {
-        for (int i = 0; i < 13; i++)
+        for (int i = 0; i < testObjects; i++)
         {
             Instantiate(container, gameObject.transform);
         }
 
-        float addH = Mathf.Ceil((13f - excludeCount) / 2f) * addHeight;
+        initialRect = gameObject.GetComponent<RectTransform>();
+        initialTransform = transform;
 
-        RectTransform newRect = gameObject.GetComponent<RectTransform>();
-        newRect.sizeDelta = new Vector2(newRect.sizeDelta.x, newRect.sizeDelta.y + addH);
+        if (testObjects > noScrollCapacity)
+        {
+            float addH = Mathf.Ceil((testObjects - noScrollCapacity) / columnNumber) * addHeight;
+            gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(initialRect.sizeDelta.x, initialRect.sizeDelta.y + addH);
 
-        float subY = Mathf.Ceil((13f - excludeCount) / 2f) * subtractPosY;
-        transform.localPosition = new Vector2(transform.localPosition.x, transform.localPosition.y - subY);
+            float subY = Mathf.Ceil((testObjects - noScrollCapacity) / columnNumber) * addHeight / 2;
+            transform.localPosition = new Vector2(initialTransform.localPosition.x, initialTransform.localPosition.y - subY);
+        }
     }
 }
