@@ -17,6 +17,9 @@ public class LevelManager : MonoBehaviour
     [Header("Main Menu")]
     [SerializeField] private bool mainMenu = false;
     [SerializeField] private Canvas[] menuCanvas;
+    [SerializeField] private Canvas[] profileCanvas;
+    [SerializeField] private Canvas[] electionsCanvas;
+    [SerializeField] private Canvas[] daoCanvas;
     [SerializeField] private TextMeshProUGUI menu_playerName;
     [SerializeField] private GameObject menu_playerNameInputUI;
     [SerializeField] private GameObject menu_welcomePlayerUI;
@@ -24,6 +27,9 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private GameObject[] levels;
 
     private int activeMenuCanvas;
+    private int activeProfileCanvas;
+    private int activeElectionsCanvas;
+    private int activeDaoCanvas;
     private AudioManager audioManager;
     private bool levelStarted = false;
 
@@ -88,12 +94,50 @@ public class LevelManager : MonoBehaviour
 
 
 
-    //  ***** Main Menu Methods *****   //
-    public void ToggleMenuCanvas(int openCanvasNumber)
+    //  ***** Navigational Functions *****   //
+    public void OpenMenuCanvas(int openCanvasNumber)
     {
         menuCanvas[activeMenuCanvas].gameObject.SetActive(false);   // Close the curren canvas
         menuCanvas[openCanvasNumber].gameObject.SetActive(true);    // Open the new one
         activeMenuCanvas = openCanvasNumber;                        // Save the new one as current
+
+        // Start with the first canvas when opening the any menu canvas
+        if (openCanvasNumber == 2) OpenProfileCanvas(0);            
+        if (openCanvasNumber == 3) OpenElectionsCanvas(0);            
+        if (openCanvasNumber == 4) OpenDaoCanvas(0);     
+    }
+
+    public void OpenProfileCanvas(int openCanvasNumber)
+    {
+        profileCanvas[activeProfileCanvas].gameObject.SetActive(false);   // Close the curren canvas
+        profileCanvas[openCanvasNumber].gameObject.SetActive(true);    // Open the new one
+        activeProfileCanvas = openCanvasNumber;                        // Save the new one as current
+    }
+
+    public void OpenElectionsCanvas(int openCanvasNumber)
+    {
+        electionsCanvas[activeElectionsCanvas].gameObject.SetActive(false);   // Close the curren canvas
+        electionsCanvas[openCanvasNumber].gameObject.SetActive(true);    // Open the new one
+        activeElectionsCanvas = openCanvasNumber;                        // Save the new one as current
+    }
+    public void OpenDaoCanvas(int openCanvasNumber)
+    {
+        daoCanvas[activeDaoCanvas].gameObject.SetActive(false);   // Close the curren canvas
+        daoCanvas[openCanvasNumber].gameObject.SetActive(true);    // Open the new one
+        activeDaoCanvas = openCanvasNumber;                        // Save the new one as current
+    }
+
+    public void BackToMenuCanvas()
+    {
+        // Close all active canvases
+        menuCanvas[activeMenuCanvas].gameObject.SetActive(false);
+        profileCanvas[activeProfileCanvas].gameObject.SetActive(false);
+        electionsCanvas[activeElectionsCanvas].gameObject.SetActive(false);
+        daoCanvas[activeDaoCanvas].gameObject.SetActive(false);
+
+        // Open the menu canvas
+        menuCanvas[0].gameObject.SetActive(true);
+        activeMenuCanvas = 0;
     }
 
     // Reset name and level achivements
