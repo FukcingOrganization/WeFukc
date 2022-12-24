@@ -281,7 +281,7 @@ public class StickPlayer : MonoBehaviour
 
         // Get the input
         //inputX = Input.GetAxis("Horizontal");
-        inputX = -inputXY.x;
+        inputX = inputXY.x;
         movement = inputX * movementSpeed;
 
         if (!canAnimate) return;
