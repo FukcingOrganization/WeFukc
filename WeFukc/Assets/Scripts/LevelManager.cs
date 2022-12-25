@@ -16,13 +16,20 @@ public class LevelManager : MonoBehaviour
 
     [Header("Main Menu")]
     [SerializeField] private bool mainMenu = false;
+    [SerializeField] private GameObject menuButtons;
+    [SerializeField] private GameObject connectButton;
+
     [SerializeField] private Canvas[] menuCanvas;
     [SerializeField] private Canvas[] profileCanvas;
     [SerializeField] private Canvas[] electionsCanvas;
     [SerializeField] private Canvas[] daoCanvas;
+
     [SerializeField] private GameObject[] profileAnims;
     [SerializeField] private GameObject[] electionAnims;
     [SerializeField] private GameObject[] daoAnims;
+
+    [SerializeField] private TextMeshProUGUI[] addressTexts;
+
     [SerializeField] private TextMeshProUGUI menu_playerName;
     [SerializeField] private GameObject menu_playerNameInputUI;
     [SerializeField] private GameObject menu_welcomePlayerUI;
@@ -35,6 +42,10 @@ public class LevelManager : MonoBehaviour
     private int activeDaoCanvas;
     private AudioManager audioManager;
     private bool levelStarted = false;
+
+    private string connectedAccount;
+
+    BlockchainManager bcManager;
 
     void Start()
     {
@@ -187,6 +198,48 @@ public class LevelManager : MonoBehaviour
         menu_welcomePlayerUI.SetActive(true);
         menu_playerNameInputUI.SetActive(false);
     }
+
+    // Set Connected Account
+    public void SetConnectedAccount(string newAccount)
+    {
+        connectedAccount = newAccount;
+
+        foreach (TextMeshProUGUI text in addressTexts)
+        {
+            text.text = newAccount.Substring(0, 6) + "...." + newAccount.Substring(38, 4);
+        }
+
+        if (newAccount != "")
+        {
+            menuButtons.SetActive(true);
+            connectButton.SetActive(false);
+        }
+
+        Debug.Log("Connected: " + connectedAccount);
+    }
+
+    public void CheckConnection()
+    {
+        connectedAccount = FindObjectOfType<BlockchainManager>().GetConnectedAddress();
+
+        Debug.Log("Checking Connection: " + connectedAccount);
+
+        if (connectedAccount != "")
+        {
+            menuButtons.SetActive(true);
+            connectButton.SetActive(false);
+
+            foreach (TextMeshProUGUI text in addressTexts)
+            {
+                text.text = connectedAccount.Substring(0, 6) + "...." + connectedAccount.Substring(38, 4);
+            }
+        }
+        else
+        {
+            menuButtons.SetActive(false);
+            connectButton?.SetActive(true);
+        }
+    }
     
     // Display updated player name
     private void DisplayPlayerName()
@@ -230,4 +283,5 @@ public class LevelManager : MonoBehaviour
             }
         }
     }
+
 }

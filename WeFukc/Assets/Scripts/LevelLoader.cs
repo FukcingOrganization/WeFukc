@@ -8,7 +8,7 @@ public class LevelLoader : MonoBehaviour
 {
     public static LevelLoader instance;
 
-    [SerializeField] GameObject loadingScreen;
+    [SerializeField] GameObject[] loadingScreens;
     [SerializeField] Slider slider;
     [SerializeField] GameObject loadingObject;
     [SerializeField] GameObject nextSceneButton;
@@ -33,6 +33,8 @@ public class LevelLoader : MonoBehaviour
     };
 
     private float progress;
+
+    LevelManager levelManager;
 
     private void Awake()
     {
@@ -69,6 +71,9 @@ public class LevelLoader : MonoBehaviour
         }
 
         SceneLoaded();
+
+        // Check connection when we go back to the menu
+        if (levelName == "MenuScene") FindObjectOfType<LevelManager>().CheckConnection();
     }
 
     private void SceneLoaded()
@@ -84,7 +89,8 @@ public class LevelLoader : MonoBehaviour
     
     public void LoadLevel(string levelName)
     {
-        loadingScreen.SetActive(true);  // activate loading screen
+        loadingScreens[0].SetActive(true);  // activate loading screen
+        loadingScreens[1].SetActive(true);
         loadingObject.SetActive(true);  // activate loading slider
 
         // Give random text for loading screen
@@ -96,14 +102,15 @@ public class LevelLoader : MonoBehaviour
     {
         loadingObject.SetActive(true);      // Open slider again
         nextSceneButton.SetActive(false);   // Close the button
-        loadingScreen.SetActive(false);     // Close whole loading screen
+        loadingScreens[0].SetActive(false);     // Close whole loading screen
+        loadingScreens[1].SetActive(false);    
 
         FindObjectOfType<LevelManager>().LevelStartActions();   // trigger the level start action in the following scene
     }
     public bool isSceneReady()
     {
         // if loading screen is active, then scene is not ready
-        if (loadingScreen.activeSelf) return false;
+        if (loadingScreens[0].activeSelf) return false;
         else return true;
     }
 }

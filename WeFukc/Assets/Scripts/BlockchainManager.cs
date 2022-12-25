@@ -1,203 +1,410 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
-//using Nethereum.JsonRpc.UnityClient;
-using System;
-using Nethereum.Hex.HexTypes;
+using TMPro;
 using System.Numerics;
-using ERC721ContractLibrary.Contracts.ERC721PresetMinterPauserAutoId.ContractDefinition;
-using Nethereum.Unity.Metamask;
-using Nethereum.Unity.Contracts;
-using Nethereum.Contracts;
-using Nethereum.Unity.Contracts.Standards.ERC721;
-using Nethereum.Contracts.Standards.ERC721;
-using Nethereum.Unity.Utils.Drawing;
-using Nethereum.Unity.Rpc;
 
-//Test external contract 0x345c2fa23160c63218dfaa25d37269f26c85ca47
-//0x2002050e7084f5db6ac4e81d54fbb6b35c257592 address
+using Nethereum.Unity.Metamask;     // for GetContractTransactionUnityRequest
+using Nethereum.Unity.Contracts;    // for GetContractTransactionUnityRequest
+using Nethereum.Unity.Rpc;  // for GetUnityRpcRequestClientFactory
+using Nethereum.Hex.HexTypes;
+
+
+using ContractDefinitions.Contracts.testToken.ContractDefinition;
+using ContractDefinitions.Contracts.testNFT.ContractDefinition;
+using ContractDefinitions.Contracts.testItem.ContractDefinition;
+using Nethereum.RPC.HostWallet;
+
 public class BlockchainManager : MonoBehaviour
 {
-    private Button _btnMetamaskConnect;
-    private Button _btnDeployNFTContract;
-    private Button _btnViewNFTs;
-    private Button _btnMintNFT;
-    private Label _lblAccountSelected;
-    private Label _lblError;
-    private ListView _lstViewNFTs;
-    private TextField _txtSmartContractAddress;
+    public static BlockchainManager instance;
 
-    private string _selectedAccountAddress; // = "0x12890D2cce102216644c59daE5baed380d84830c";
-    private bool _isMetamaskInitialised = false;
-    private BigInteger _currentChainId; //444444444500;
-    private string _currentContractAddress; // = "0x32eb97b8ad202b072fd9066c03878892426320ed";
+    public TMPro.TextMeshProUGUI tokenBalanceText;
+    public TMPro.TextMeshProUGUI nftBalanceText;
+    public TMPro.TextMeshProUGUI itemBalanceText;
 
+    public TMPro.TextMeshProUGUI nftAllowanceText;
+    public TMPro.TextMeshProUGUI itemAllowanceText;
+    public TMPro.TextMeshProUGUI mintNFTButtonText;
+    public TMPro.TextMeshProUGUI mintItemButtonText;
+
+    string _selectedAccountAddress = "";
+    string _currentContractAddress = "";
+
+    bool _isMetamaskInitialised;
+    private BigInteger _currentChainId;
+    private BigInteger nftAllowance;
+    private BigInteger itemAllowance;
+
+
+    string tokenContract = "0x57400f3692Cb51b698774ca63451E5aD73490f1b";
+    string nftContract = "0x34063824bAf9863379d6C059C1D3653c2e18acDe";
+    string itemContract = "0xcfDDbf89c06DdC3cffA3e5137321249cf67784cc";
+    double mintAmount = 5.3;
+    double currentAllowance;
+
+    LevelManager levelManager;
+
+    /* Notes
+        - Always give much higer (like 10x) allowance when you increase compared to when you check allowance.
+    Because, it doesn't give perfect number, gives less. Makes you increase it twice!
+     
+     */
+
+    private void Awake()
+    {
+        if (instance == null)
+            instance = this;
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        DontDestroyOnLoad(gameObject);
+
+    }
 
     void Start()
     {
-        var root = GetComponent<UIDocument>().rootVisualElement;
-        _lblAccountSelected = root.Q<Label>("lbl-account-selected");
-        _btnMetamaskConnect = root.Q<Button>("metamask-button");
-        _txtSmartContractAddress = root.Q<TextField>("txt-smartContract-Address");
-        _lstViewNFTs = root.Q<ListView>("lst-nfts");
-
-        _btnViewNFTs = root.Q<Button>("btn-list-nfts");
-        _btnMintNFT = root.Q<Button>("btn-mint-nft");
-
-        _lblError = root.Q<Label>("lbl-error");
-
-        _btnDeployNFTContract = root.Q<Button>("btn-deploy-nft");
-        _btnMetamaskConnect.clicked += MetamaskConnectButton_Clicked;
-        _btnDeployNFTContract.clicked += _btnDeployNFTContract_clicked;
-        _btnMintNFT.clicked += _btnMintNFT_clicked;
-        _btnViewNFTs.clicked += _btnViewNFTs_clicked;
-
+        print("Contract: " + _currentContractAddress);
+        levelManager = FindObjectOfType<LevelManager>();
     }
 
-    private void _btnViewNFTs_clicked()
+    // Buttons
+    public void UpdateBalanceButton()
     {
-        StartCoroutine(GetAllNFTImages());
+        StartCoroutine(UpdateTokenBalance());
+        StartCoroutine(UpdateNFTBalance());
+        StartCoroutine(UpdateItemBalance());
     }
-
-    private void _btnMintNFT_clicked()
+    public void MintTokenButton() { StartCoroutine(MintToken()); }
+    public void MintNFTButton()
     {
+        // If not enough allowance, then increase it first
+        if (!checkAllowance(nftContract)) { StartCoroutine(IncreaseAllowance(nftContract)); return; }
+
+        // If there is enough allowance, then mint
         StartCoroutine(MintNFT());
     }
-
-    public IEnumerator MintNFT()
+    public void MintItemButton()
     {
+        // If not enough allowance, then increase it first
+        if (!checkAllowance(itemContract)) { StartCoroutine(IncreaseAllowance(itemContract)); return; }
+
+        // If there is enough allowance, then mint
+        StartCoroutine(MintItem());
+    }
+
+
+    // Blockchain functions
+
+    // Read Function
+    private IEnumerator UpdateTokenBalance()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Contract: " + tokenContract);
+
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
         if (contractTransactionUnityRequest != null)
         {
-            var mintFunction = new MintFunction() { To = _selectedAccountAddress };
+            var queryRequest = new QueryUnityRequest<
+                ContractDefinitions.Contracts.testToken.ContractDefinition.BalanceOfFunction,
+                ContractDefinitions.Contracts.testToken.ContractDefinition.BalanceOfOutputDTOBase>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress);
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<MintFunction>(mintFunction, _currentContractAddress);
+            yield return queryRequest.Query(new ContractDefinitions.Contracts.testToken.ContractDefinition
+                .BalanceOfFunction()
+            { Account = _selectedAccountAddress }, tokenContract);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            var balance = dtoResult.ReturnValue1;
+
+            tokenBalanceText.text = FromWei(balance).ToString(); // 2 decimals will be shown
+            print("Token Balance: " + balance);
+        }
+    }
+    private IEnumerator UpdateNFTBalance()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Contract: " + nftContract);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                ContractDefinitions.Contracts.testNFT.ContractDefinition.BalanceOfFunction,
+                ContractDefinitions.Contracts.testNFT.ContractDefinition.BalanceOfOutputDTOBase>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress);
+
+            yield return queryRequest.Query(new ContractDefinitions.Contracts.testNFT.ContractDefinition
+                .BalanceOfFunction()
+            { Owner = _selectedAccountAddress }, nftContract);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            var balance = dtoResult.ReturnValue1;
+
+            nftBalanceText.text = balance.ToString(); // 2 decimals will be shown
+            print("NFT Balance: " + balance);
+        }
+    }
+    private IEnumerator UpdateItemBalance()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Contract: " + itemContract);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                ContractDefinitions.Contracts.testItem.ContractDefinition.BalanceOfFunction,
+                ContractDefinitions.Contracts.testItem.ContractDefinition.BalanceOfOutputDTOBase>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress);
+
+            yield return queryRequest.Query(new ContractDefinitions.Contracts.testItem.ContractDefinition
+                .BalanceOfFunction()
+            { Account = _selectedAccountAddress, Id = 2 }, itemContract);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            var balance = dtoResult.ReturnValue1;
+
+            itemBalanceText.text = balance.ToString(); // 2 decimals will be shown
+            print("Item Balance: " + balance);
+        }
+    }
+    private IEnumerator ReadAllowance(string contractAddress)
+    {
+        yield return new WaitForSeconds(10);    // TEST: Checking with connect button, wait for the connection
+
+        print("Checking Allowance for: " + contractAddress);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<AllowanceFunction, AllowanceOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress);
+
+            yield return queryRequest.Query(new AllowanceFunction()
+            { Owner = _selectedAccountAddress, Spender = contractAddress }, tokenContract);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            var allowance = dtoResult.ReturnValue1;
+
+            if (contractAddress == nftContract)
+            {
+                nftAllowance = allowance;
+                nftAllowanceText.text = allowance.ToString(); // 2 decimals will be shown
+                print("NFT contract allowance: " + allowance.ToString());
+            }
+            else
+            {
+                itemAllowance = allowance;
+                itemAllowanceText.text = allowance.ToString(); // 2 decimals will be shown
+                print("Item contract allowance: " + allowance.ToString());
+            }
+        }
+    }
+
+
+    // Write Functions
+    private IEnumerator MintToken()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Contract: " + tokenContract);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+
+            var mintFunction = new ContractDefinitions.Contracts.testToken.ContractDefinition.MintFunction
+            {
+                To = _selectedAccountAddress,
+                Amount = ToWei(mintAmount)
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                ContractDefinitions.Contracts.testToken.ContractDefinition.MintFunction>(
+                mintFunction, tokenContract);
             if (contractTransactionUnityRequest.Exception == null)
             {
                 print(contractTransactionUnityRequest.Result);
             }
             else
             {
-                DisplayError(contractTransactionUnityRequest.Exception.Message);
-            }
-
-        }
-    }
-
-    public IEnumerator GetAllNFTImages()
-    {
-        try
-        {
-            _lstViewNFTs.hierarchy.Clear();
-        }
-        catch { }
-        var nftsOfUser = new NFTsOfUserUnityRequest(_selectedAccountAddress, GetUnityRpcRequestClientFactory());
-        yield return nftsOfUser.GetAllMetadataUrls(_currentContractAddress, _selectedAccountAddress);
-
-        if (nftsOfUser.Exception != null)
-        {
-            DisplayError(nftsOfUser.Exception.Message);
-            yield break;
-        }
-
-        Debug.LogWarning(nftsOfUser.Result.Count);
-
-        if (nftsOfUser.Result != null)
-        {
-            var metadataUnityRequest = new NftMetadataUnityRequest<NftMetadata>();
-            yield return metadataUnityRequest.GetAllMetadata(nftsOfUser.Result);
-
-            if (metadataUnityRequest.Exception != null)
-            {
-                DisplayError(metadataUnityRequest.Exception.Message);
-                yield break;
-            }
-            if (metadataUnityRequest.Result != null)
-            {
-                foreach (var item in metadataUnityRequest.Result)
-                {
-                    var image = new Image();
-                    _lstViewNFTs.hierarchy.Add(image);
-                    Debug.LogWarning(item.Image);
-                    StartCoroutine(new ImageDownloaderTextureAssigner().DownloadAndSetImageTexture(item.Image, image));
-                }
+                print(contractTransactionUnityRequest.Exception.Message);
             }
         }
     }
-
-
-    private void _btnDeployNFTContract_clicked()
+    private IEnumerator MintNFT()
     {
-        StartCoroutine(DeploySmartContract());
-    }
+        print("Wallet: " + _selectedAccountAddress);
+        print("Contract: " + nftContract);
 
-    private IEnumerator DeploySmartContract()
-    {
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
         if (contractTransactionUnityRequest != null)
         {
-            var erc721PresetMinter = new ERC721PresetMinterPauserAutoIdDeployment()
-            {
-                BaseURI = "https://my-json-server.typicode.com/juanfranblanco/samplenftdb/tokens/", //This is a simple example using a centralised server.. use ipfs etc for a proper decentralised inmutable
-                Name = "NFTArt",
-                Symbol = "NFA"
-            };
+            var mintFunction = new ContractDefinitions.Contracts.testNFT.ContractDefinition.MintFunction { };
 
-            yield return contractTransactionUnityRequest.SignAndSendDeploymentContractTransaction<ERC721PresetMinterPauserAutoIdDeployment>(erc721PresetMinter);
-
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                ContractDefinitions.Contracts.testNFT.ContractDefinition.MintFunction>(
+                    mintFunction, nftContract);
             if (contractTransactionUnityRequest.Exception == null)
             {
-                yield return GetDeploymentSmartContractAddressFromReceipt(contractTransactionUnityRequest.Result);
+                print(contractTransactionUnityRequest.Result);
             }
             else
             {
-                DisplayError(contractTransactionUnityRequest.Exception.Message);
+                print(contractTransactionUnityRequest.Exception.Message);
             }
-
         }
-
     }
-
-
-    private IEnumerator GetDeploymentSmartContractAddressFromReceipt(string transactionHash)
+    private IEnumerator MintItem()
     {
-        print(transactionHash);
-        //create a poll to get the receipt when mined
-        var transactionReceiptPolling = new TransactionReceiptPollingRequest(GetUnityRpcRequestClientFactory());
+        print("Wallet: " + _selectedAccountAddress);
+        print("Contract: " + itemContract);
 
-        //checking every 2 seconds for the receipt
-        yield return transactionReceiptPolling.PollForReceipt(transactionHash, 2);
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
-        var deploymentReceipt = transactionReceiptPolling.Result;
-        _currentContractAddress = deploymentReceipt.ContractAddress;
-        _txtSmartContractAddress.value = deploymentReceipt.ContractAddress;
-        print(_currentContractAddress);
-
-    }
-
-    private void MetamaskConnectButton_Clicked()
-    {
-        _lblError.visible = false;
-#if !DEBUG
-        if (MetamaskInterop.IsMetamaskAvailable())
+        if (contractTransactionUnityRequest != null)
         {
-            MetamaskInterop.EnableEthereum(gameObject.name, nameof(EthereumEnabled), nameof(DisplayError));
+            var mintFunction = new MintItemFunction
+            {
+                Id = 2,
+                Amount = 1
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<MintItemFunction>(mintFunction, itemContract);
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
+    private IEnumerator IncreaseAllowance(string contractAddress)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Increase allowance for: " + contractAddress);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+
+            var increaseAllowanceFunction = new IncreaseAllowanceFunction
+            {
+                Spender = contractAddress,
+                AddedValue = ToWei(10000000)    // increase the allowance 10m
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<IncreaseAllowanceFunction>(
+                increaseAllowanceFunction, tokenContract);
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+                if (contractAddress == nftContract)
+                    mintNFTButtonText.text = "Mint NFT";
+                else
+                    mintItemButtonText.text = "Mint Item";
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
+
+
+    // Allowance Functions
+    private bool checkAllowance(string contractAddress)
+    {
+        print("Check Allowance: " + contractAddress);
+        StartCoroutine(ReadAllowance(contractAddress));
+
+        // If the allowance more than 1m token, than go ahead
+        if (contractAddress == nftContract && nftAllowance > ToWei(1000000))
+        {
+            print("Allowance TRUE for NFT Contract!");
+            return true;
+        }
+        else if (contractAddress == itemContract && itemAllowance > ToWei(1000000))
+        {
+            print("Allowance TRUE for Item Contract!");
+            return true;
         }
         else
         {
-            DisplayError("Metamask is not available, please install it");
+            print("Allowance FALSE !!!! Contract: " + contractAddress);
+            return false;
         }
-#endif
+    }
 
+
+    //  TOOLS TO USE
+    public void ConnectWalletButton()
+    {
+        if (MetamaskInterop.IsMetamaskAvailable())
+        {
+            MetamaskInterop.EnableEthereum(gameObject.name, nameof(EthereumEnabled), nameof(DisplayError));
+
+            StartCoroutine(AddAvalanche());
+        }
+        else
+        {
+            print("Metamask is not available, please install it");
+        }
+        /**
+        if (!checkAllowance(nftContract))
+            mintNFTButtonText.text = "Approve";
+        else
+            mintNFTButtonText.text = "Mint NFT";
+
+        if (!checkAllowance(itemContract))
+            mintItemButtonText.text = "Approve";
+        else
+            mintItemButtonText.text = "Mint Item";
+        */
+    }
+
+    private IEnumerator AddAvalanche()
+    {
+        var addRequest = new WalletAddEthereumChainUnityRequest(GetUnityRpcRequestClientFactory());
+
+        // Testing to add Gnosis chain
+        var chainParams = new AddEthereumChainParameter
+        {
+            ChainId = new HexBigInteger("0x64"),
+            ChainName = "Gnosis",
+            RpcUrls = new List<string> { "https://rpc.gnosischain.com" },
+            BlockExplorerUrls = new List<string> { "https://blockscout.com/xdai/mainnet" },
+            NativeCurrency = new NativeCurrency
+            {
+                Name = "xDAI",
+                Symbol = "xDAI",
+                Decimals = 18
+            }
+        };
+
+        yield return addRequest.SendRequest(chainParams);
+        //print(addRequest.Result.Value);
     }
 
     public void EthereumEnabled(string addressSelected)
     {
-#if !DEBUG
         if (!_isMetamaskInitialised)
         {
             MetamaskInterop.EthereumInit(gameObject.name, nameof(NewAccountSelected), nameof(ChainChanged));
@@ -205,10 +412,18 @@ public class BlockchainManager : MonoBehaviour
             _isMetamaskInitialised = true;
         }
         NewAccountSelected(addressSelected);
-#endif
     }
+    private void DisplayError(string errorMessage) { }
+    private void NewAccountSelected(string accountAddress)
+    {
+        print("New Account executed: " + accountAddress);
 
-    public void ChainChanged(string chainId)
+        _selectedAccountAddress = accountAddress;
+        levelManager.SetConnectedAccount(accountAddress);
+
+        print("Sent!");
+    }
+    private void ChainChanged(string chainId)
     {
         print(chainId);
         _currentChainId = new HexBigInteger(chainId).Value;
@@ -223,73 +438,41 @@ public class BlockchainManager : MonoBehaviour
             DisplayError(ex.Message);
         }
     }
-
-    public void NewAccountSelected(string accountAddress)
-    {
-
-        _selectedAccountAddress = accountAddress;
-        _lblAccountSelected.text = accountAddress;
-        _lblAccountSelected.visible = true;
-    }
-
-
-    public void DisplayError(string errorMessage)
-    {
-        _lblError.text = errorMessage;
-        _lblError.visible = true;
-
-    }
-
-
     private IEnumerator GetBlockNumber()
     {
         var blockNumberRequest = new EthBlockNumberUnityRequest(GetUnityRpcRequestClientFactory());
         yield return blockNumberRequest.SendRequest();
         print(blockNumberRequest.Result.Value);
     }
-
-    public IUnityRpcRequestClientFactory GetUnityRpcRequestClientFactory()
-    {
-#if !DEBUG
-        if (MetamaskInterop.IsMetamaskAvailable()) 
-        {
-            return new MetamaskRequestRpcClientFactory(_selectedAccountAddress, null, 1000);
-        }
-        else
-        {
-            DisplayError("Metamask is not available, please install it");
-            return null;
-        }
-#endif
-        _selectedAccountAddress = "0x12890D2cce102216644c59daE5baed380d84830c";
-        return new UnityWebRequestRpcClientFactory("http://localhost:8545");
-    }
-
-
     public IContractTransactionUnityRequest GetContractTransactionUnityRequest()
     {
-#if !DEBUG
         if (MetamaskInterop.IsMetamaskAvailable())
         {
             return new MetamaskTransactionUnityRequest(_selectedAccountAddress, GetUnityRpcRequestClientFactory());
         }
         else
         {
-            DisplayError("Metamask is not available, please install it");
+            print("Metamask is not available, please install it");
             return null;
         }
-#endif
-        _selectedAccountAddress = "0x12890D2cce102216644c59daE5baed380d84830c";
-        return new TransactionSignedUnityRequest("http://localhost:8545", "0xb5b1870957d373ef0eeffecc6e4812c0fd08f554b37b233526acc331bf1544f7", 444444444500);
     }
-
-    // Update is called once per frame
-    void Update()
+    public IUnityRpcRequestClientFactory GetUnityRpcRequestClientFactory()
     {
-
+        if (MetamaskInterop.IsMetamaskAvailable())
+        {
+            return new MetamaskRequestRpcClientFactory(_selectedAccountAddress, null, 1000);
+        }
+        else
+        {
+            print("Metamask is not available, please install it");
+            return null;
+        }
     }
+
+    // Getters and Setters
+    public string GetConnectedAddress() { return _selectedAccountAddress; }
+
+    // Conversion Tools
+    private static BigInteger ToWei(double value) { return (BigInteger)(value * Math.Pow(10, 18)); }
+    private static double FromWei(BigInteger value) { return ((double)value / Math.Pow(10, 18)); }
 }
-
-
-
-
