@@ -133,6 +133,7 @@ public class StickPlayer : MonoBehaviour
     private const string SNARE_BIG = "SnareBig";
 
 
+    private bool key_escape = false;
     private bool key_jump = false;
     private bool key_punch = false;
     private bool key_kick = false;
@@ -168,6 +169,8 @@ public class StickPlayer : MonoBehaviour
         // Check input keys
         input.Player.Move.performed += ctx => inputXY = ctx.ReadValue<Vector2>();
         input.Player.Move.canceled += ctx => inputXY = ctx.ReadValue<Vector2>();
+        input.Player.Escape.started += ctx => key_escape = true;
+        input.Player.Escape.canceled += ctx => key_escape = false;
         input.Player.Jump.started += ctx => key_jump = true;
         input.Player.Jump.canceled += ctx => key_jump = false;
         input.Player.Punch.started += ctx => key_punch = true;
@@ -211,6 +214,10 @@ public class StickPlayer : MonoBehaviour
 
     private void Update()
     {
+        // Get back to menu
+        if (key_escape)
+            FindObjectOfType<LevelLoader>().LoadLevel("MenuScene");
+
         // if scene is not ready, do not execute anything
         if (!FindObjectOfType<LevelLoader>().isSceneReady()) return;
 

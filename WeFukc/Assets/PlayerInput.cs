@@ -116,6 +116,15 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Escape"",
+                    ""type"": ""Button"",
+                    ""id"": ""bb905485-ede6-451c-af70-b0c0970f4084"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -250,6 +259,17 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""action"": ""Weapon_Switch_Previous"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""fa3267c3-1e00-4ce1-a905-393262d98d71"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Escape"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -329,6 +349,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         m_Player_Fire = m_Player.FindAction("Fire", throwIfNotFound: true);
         m_Player_Weapon_Switch_Next = m_Player.FindAction("Weapon_Switch_Next", throwIfNotFound: true);
         m_Player_Weapon_Switch_Previous = m_Player.FindAction("Weapon_Switch_Previous", throwIfNotFound: true);
+        m_Player_Escape = m_Player.FindAction("Escape", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -398,6 +419,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Fire;
     private readonly InputAction m_Player_Weapon_Switch_Next;
     private readonly InputAction m_Player_Weapon_Switch_Previous;
+    private readonly InputAction m_Player_Escape;
     public struct PlayerActions
     {
         private @PlayerInput m_Wrapper;
@@ -412,6 +434,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         public InputAction @Fire => m_Wrapper.m_Player_Fire;
         public InputAction @Weapon_Switch_Next => m_Wrapper.m_Player_Weapon_Switch_Next;
         public InputAction @Weapon_Switch_Previous => m_Wrapper.m_Player_Weapon_Switch_Previous;
+        public InputAction @Escape => m_Wrapper.m_Player_Escape;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -451,6 +474,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Weapon_Switch_Previous.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnWeapon_Switch_Previous;
                 @Weapon_Switch_Previous.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnWeapon_Switch_Previous;
                 @Weapon_Switch_Previous.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnWeapon_Switch_Previous;
+                @Escape.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnEscape;
+                @Escape.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnEscape;
+                @Escape.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnEscape;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -485,6 +511,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Weapon_Switch_Previous.started += instance.OnWeapon_Switch_Previous;
                 @Weapon_Switch_Previous.performed += instance.OnWeapon_Switch_Previous;
                 @Weapon_Switch_Previous.canceled += instance.OnWeapon_Switch_Previous;
+                @Escape.started += instance.OnEscape;
+                @Escape.performed += instance.OnEscape;
+                @Escape.canceled += instance.OnEscape;
             }
         }
     }
@@ -546,5 +575,6 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         void OnFire(InputAction.CallbackContext context);
         void OnWeapon_Switch_Next(InputAction.CallbackContext context);
         void OnWeapon_Switch_Previous(InputAction.CallbackContext context);
+        void OnEscape(InputAction.CallbackContext context);
     }
 }

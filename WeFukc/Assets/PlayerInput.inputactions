@@ -94,6 +94,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Escape",
+                    "type": "Button",
+                    "id": "bb905485-ede6-451c-af70-b0c0970f4084",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -226,6 +235,17 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Weapon_Switch_Previous",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fa3267c3-1e00-4ce1-a905-393262d98d71",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Escape",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
