@@ -33,15 +33,6 @@ public class BlockchainManager : MonoBehaviour
 {
     public static BlockchainManager instance;
 
-    public TMPro.TextMeshProUGUI tokenBalanceText;
-    public TMPro.TextMeshProUGUI nftBalanceText;
-    public TMPro.TextMeshProUGUI itemBalanceText;
-
-    public TMPro.TextMeshProUGUI nftAllowanceText;
-    public TMPro.TextMeshProUGUI itemAllowanceText;
-    public TMPro.TextMeshProUGUI mintNFTButtonText;
-    public TMPro.TextMeshProUGUI mintItemButtonText;
-
     // --- Essentials --- //
     bool _isMetamaskInitialised;
     string _selectedAccountAddress = "";
@@ -63,9 +54,27 @@ public class BlockchainManager : MonoBehaviour
       "0x0000000000000000000000000000000000000000"  //
     };
 
+    // --- References --- //
+    LevelManager levelManager;
+
+
+    // LORD
+    public TMPro.TMP_InputField lordPriceInput;
+
+
+    public TMPro.TextMeshProUGUI tokenBalanceText;
+    public TMPro.TextMeshProUGUI nftBalanceText;
+    public TMPro.TextMeshProUGUI itemBalanceText;
+
+    public TMPro.TextMeshProUGUI nftAllowanceText;
+    public TMPro.TextMeshProUGUI itemAllowanceText;
+    public TMPro.TextMeshProUGUI mintNFTButtonText;
+    public TMPro.TextMeshProUGUI mintItemButtonText;
+
 
     private BigInteger nftAllowance;
     private BigInteger itemAllowance;
+
 
     string tokenContract = "0x57400f3692Cb51b698774ca63451E5aD73490f1b";
     string nftContract = "0x34063824bAf9863379d6C059C1D3653c2e18acDe";
@@ -73,13 +82,9 @@ public class BlockchainManager : MonoBehaviour
     double mintAmount = 5.3;
     double currentAllowance;
 
-    // --- References --- //
-    LevelManager levelManager;
-
     /* Notes
         - Always give much higer (like 10x) allowance when you increase compared to when you check allowance.
     Because, it doesn't give perfect number, gives less. Makes you increase it twice!
-     
      */
 
     private void Awake()
@@ -93,10 +98,7 @@ public class BlockchainManager : MonoBehaviour
         }
 
         DontDestroyOnLoad(gameObject);
-
-
     }
-
     void Start()
     {
         print("Contract: " + _currentContractAddress);
@@ -105,10 +107,24 @@ public class BlockchainManager : MonoBehaviour
 
 
 
-
-
-
     //******    BUTTONS    ******//
+    // LORD
+    public void LordMintButton()
+    {
+        print("string: " + lordPriceInput.text);
+
+        Double price = Double.Parse(lordPriceInput.text, System.Globalization.CultureInfo.InvariantCulture);
+
+        if (price < 0.05)
+        {
+            print("Price is lower than minimum(0.05 ETH) !!");
+            return;
+        }
+
+        print("Lord Mint Price to send: " + price.ToString());
+
+        StartCoroutine(LordMintCall(ToWei(price)));
+    }
     public void UpdateBalanceButton()
     {
         StartCoroutine(UpdateTokenBalance());
@@ -142,7 +158,7 @@ public class BlockchainManager : MonoBehaviour
 
     //------ CLAN CONTRACT ------//
     // Write
-    private IEnumerator CreateClan()
+    private IEnumerator CreateClanCall()
     {
         print("Wallet: " + _selectedAccountAddress);
         print("Clan Contract: " + contracts[1]); // CHANGE HERE !!!
@@ -185,7 +201,35 @@ public class BlockchainManager : MonoBehaviour
     // Disband Clan
 
     //------ LORD CONTRACT ------//
-    // Public Mint
+    private IEnumerator LordMintCall(BigInteger _amountToSend)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Lord Contract: " + contracts[7]); // Lord Contract
+        print("Given BigInteger: " + _amountToSend.ToString());
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.Lord.ContractDefinition.LordMintFunction
+            {
+                AmountToSend = _amountToSend
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                Contracts.Contracts.Lord.ContractDefinition.LordMintFunction
+            >(callFunction, contracts[7]);  // Lord Contract
+
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
     // Mint License
     // DAO Vote
 
