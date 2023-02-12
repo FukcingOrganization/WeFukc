@@ -164,7 +164,7 @@ public class BlockchainManager : MonoBehaviour
 
         StartCoroutine(LordMintCall(ToWei(price)));
     }
-    public void Button_UpdateLordSupply(){ StartCoroutine(GetLordSupply()); }
+    public void Button_LordUpdateSupply(){ StartCoroutine(GetLordSupply()); }
 
     // Clan
     public void Button_ClanCreate() { StartCoroutine(CreateClanCall()); }

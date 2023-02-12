@@ -58961,7 +58961,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1020680470
 RectTransform:
   m_ObjectHideFlags: 0
@@ -63646,7 +63646,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 686929981}
         m_TargetAssemblyTypeName: BlockchainManager, Assembly-CSharp
-        m_MethodName: LordMintButton
+        m_MethodName: Button_LordMint
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -94788,7 +94788,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1585525023
 RectTransform:
   m_ObjectHideFlags: 0
@@ -104425,7 +104425,7 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 686929981}
         m_TargetAssemblyTypeName: BlockchainManager, Assembly-CSharp
-        m_MethodName: UpdateLordSupplyButton
+        m_MethodName: Button_LordUpdateSupply
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
