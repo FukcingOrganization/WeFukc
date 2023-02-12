@@ -504,48 +504,21 @@ namespace Contracts.Contracts.Clan.ContractDefinition
         public virtual string NewLeader { get; set; }
     }
 
-    public partial class UpdateClanDescriptionFunction : UpdateClanDescriptionFunctionBase { }
+    public partial class UpdateClanInfoFunction : UpdateClanInfoFunctionBase { }
 
-    [Function("updateClanDescription")]
-    public class UpdateClanDescriptionFunctionBase : FunctionMessage
-    {
-        [Parameter("uint256", "_clanID", 1)]
-        public virtual BigInteger ClanID { get; set; }
-        [Parameter("string", "_newDescription", 2)]
-        public virtual string NewDescription { get; set; }
-    }
-
-    public partial class UpdateClanLogoURIFunction : UpdateClanLogoURIFunctionBase { }
-
-    [Function("updateClanLogoURI")]
-    public class UpdateClanLogoURIFunctionBase : FunctionMessage
-    {
-        [Parameter("uint256", "_clanID", 1)]
-        public virtual BigInteger ClanID { get; set; }
-        [Parameter("string", "_newLogoURI", 2)]
-        public virtual string NewLogoURI { get; set; }
-    }
-
-    public partial class UpdateClanMottoFunction : UpdateClanMottoFunctionBase { }
-
-    [Function("updateClanMotto")]
-    public class UpdateClanMottoFunctionBase : FunctionMessage
-    {
-        [Parameter("uint256", "_clanID", 1)]
-        public virtual BigInteger ClanID { get; set; }
-        [Parameter("string", "_newMotto", 2)]
-        public virtual string NewMotto { get; set; }
-    }
-
-    public partial class UpdateClanNameFunction : UpdateClanNameFunctionBase { }
-
-    [Function("updateClanName")]
-    public class UpdateClanNameFunctionBase : FunctionMessage
+    [Function("updateClanInfo")]
+    public class UpdateClanInfoFunctionBase : FunctionMessage
     {
         [Parameter("uint256", "_clanID", 1)]
         public virtual BigInteger ClanID { get; set; }
         [Parameter("string", "_newName", 2)]
         public virtual string NewName { get; set; }
+        [Parameter("string", "_newDescription", 3)]
+        public virtual string NewDescription { get; set; }
+        [Parameter("string", "_newMotto", 4)]
+        public virtual string NewMotto { get; set; }
+        [Parameter("string", "_newLogoURI", 5)]
+        public virtual string NewLogoURI { get; set; }
     }
 
     public partial class UpdatePointAndRoundFunction : UpdatePointAndRoundFunctionBase { }
@@ -610,6 +583,17 @@ namespace Contracts.Contracts.Clan.ContractDefinition
         public virtual BigInteger ClanID { get; set; }
         [Parameter("address", "_memberAddress", 3)]
         public virtual string MemberAddress { get; set; }
+    }
+
+    public partial class ViewMemberRewardFunction : ViewMemberRewardFunctionBase { }
+
+    [Function("viewMemberReward", "uint256")]
+    public class ViewMemberRewardFunctionBase : FunctionMessage
+    {
+        [Parameter("uint256", "_clanID", 1)]
+        public virtual BigInteger ClanID { get; set; }
+        [Parameter("uint256", "_roundNumber", 2)]
+        public virtual BigInteger RoundNumber { get; set; }
     }
 
 
@@ -745,16 +729,18 @@ namespace Contracts.Contracts.Clan.ContractDefinition
         public virtual BigInteger ReturnValue2 { get; set; }
         [Parameter("uint256", "", 3)]
         public virtual BigInteger ReturnValue3 { get; set; }
-        [Parameter("address[]", "", 4)]
-        public virtual List<string> ReturnValue4 { get; set; }
-        [Parameter("uint256[]", "", 5)]
-        public virtual List<BigInteger> ReturnValue5 { get; set; }
-        [Parameter("bool[]", "", 6)]
-        public virtual List<bool> ReturnValue6 { get; set; }
+        [Parameter("address", "", 4)]
+        public virtual string ReturnValue4 { get; set; }
+        [Parameter("address[]", "", 5)]
+        public virtual List<string> ReturnValue5 { get; set; }
+        [Parameter("uint256[]", "", 6)]
+        public virtual List<BigInteger> ReturnValue6 { get; set; }
         [Parameter("bool[]", "", 7)]
         public virtual List<bool> ReturnValue7 { get; set; }
         [Parameter("bool[]", "", 8)]
         public virtual List<bool> ReturnValue8 { get; set; }
+        [Parameter("bool[]", "", 9)]
+        public virtual List<bool> ReturnValue9 { get; set; }
     }
 
 
@@ -876,12 +862,6 @@ namespace Contracts.Contracts.Clan.ContractDefinition
 
 
 
-
-
-
-
-
-
     public partial class ViewClanInfoOutputDTO : ViewClanInfoOutputDTOBase { }
 
     [FunctionOutput]
@@ -949,5 +929,14 @@ namespace Contracts.Contracts.Clan.ContractDefinition
     {
         [Parameter("bool", "", 1)]
         public virtual bool ReturnValue1 { get; set; }
+    }
+
+    public partial class ViewMemberRewardOutputDTO : ViewMemberRewardOutputDTOBase { }
+
+    [FunctionOutput]
+    public class ViewMemberRewardOutputDTOBase : IFunctionOutputDTO 
+    {
+        [Parameter("uint256", "", 1)]
+        public virtual BigInteger ReturnValue1 { get; set; }
     }
 }

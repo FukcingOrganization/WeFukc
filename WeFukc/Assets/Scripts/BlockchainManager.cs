@@ -16,16 +16,16 @@ using ContractDefinitions.Contracts.testToken.ContractDefinition;
 using ContractDefinitions.Contracts.testNFT.ContractDefinition;
 using ContractDefinitions.Contracts.testItem.ContractDefinition;
 /*
-using Contracts.Contracts.Boss;
-using Contracts.Contracts.License;
-using Contracts.Contracts.Community;
-using Contracts.Contracts.DAO;
-using Contracts.Contracts.Executors;
-using Contracts.Contracts.Items;
-using Contracts.Contracts.Lord;
-using Contracts.Contracts.Rent;
-using Contracts.Contracts.Round;
-using Contracts.Contracts.Token;
+    using Contracts.Contracts.Boss;
+    using Contracts.Contracts.License;
+    using Contracts.Contracts.Community;
+    using Contracts.Contracts.DAO;
+    using Contracts.Contracts.Executors;
+    using Contracts.Contracts.Items;
+    using Contracts.Contracts.Lord;
+    using Contracts.Contracts.Rent;
+    using Contracts.Contracts.Round;
+    using Contracts.Contracts.Token;
 */
 
 public class BlockchainManager : MonoBehaviour
@@ -37,7 +37,7 @@ public class BlockchainManager : MonoBehaviour
     string _selectedAccountAddress = "";
     string _currentContractAddress = "";
     private BigInteger _currentChainId;
-    private BigInteger desiredChainID = 421613;
+    private BigInteger desiredChainID = 421613; // Arbi Goerli
     string[] contracts = new string[] {
       "0xd5DdaF6df51220a17E2292cF4A64ae6510c5415e", // 0- Boss
       "0x977c94Afe8C3B80beF6f2386Fd7d7B016754407A", // 1- Clan
@@ -58,7 +58,8 @@ public class BlockchainManager : MonoBehaviour
     LevelManager levelManager;
 
 
-    #region LORD 
+    #region LORD
+    [Header("== Lord Objects ==")]
     // Objects
     public TMPro.TMP_InputField lordPriceInput;
     public TMPro.TextMeshProUGUI lordSupplyText;
@@ -66,23 +67,32 @@ public class BlockchainManager : MonoBehaviour
     #endregion
 
     #region CLAN 
+    [Header("== Clan Objects ==")]
     // Objects - Input
-    public TMPro.TMP_InputField ClanIDSearchInput;          // Search Clan
-    public TMPro.TMP_InputField CreateClanLordIDInput;      // Create Clan
-    public TMPro.TMP_InputField CreateClanNameInput;            
-    public TMPro.TMP_InputField CreateClanDescriptionInput;
-    public TMPro.TMP_InputField CreateClanMottoInput;
-    public TMPro.TMP_InputField CreateClanLogoInput;
-    public TMPro.TMP_InputField ClanSetMemberAddressInput;  // Set Member
-    public TMPro.TMP_InputField ClanSetExecutorAddressInput;// Set Executor
-    public TMPro.TMP_InputField ClanSetModAddressInput;     // Set Mod
-    public TMPro.TMP_InputField ClanGiveMemberPointAddressInput;    // Give Member Point - Address
-    public TMPro.TMP_InputField ClanGiveMemberPointPointInput;      // Give Member Point - Point
+    [SerializeField] TMP_InputField clanIDSearchInput;          // Search Clan
+    [SerializeField] TMP_InputField createClanLordIDInput;      // Create Clan
+    [SerializeField] TMP_InputField createClanNameInput;
+    [SerializeField] TMP_InputField createClanDescriptionInput;
+    [SerializeField] TMP_InputField createClanMottoInput;
+    [SerializeField] TMP_InputField createClanLogoInput;
+    [SerializeField] TMP_InputField clanSetMemberAddressInput;  // Set Member
+    [SerializeField] TMP_InputField clanSetExecutorAddressInput;// Set Executor
+    [SerializeField] TMP_InputField clanSetModAddressInput;     // Set Mod
+    [SerializeField] TMP_InputField clanGiveMemberPointAddressInput;    // Give Member Point - Address
+    [SerializeField] TMP_InputField clanGiveMemberPointPointInput;      // Give Member Point - Point
+    [SerializeField] TMP_InputField clanClaimMemberRewardRoundInput;    // Claim Member Reward - Round
+    [SerializeField] TMP_InputField clanClaimMemberRewardClanIDInput;   // Claim Member Reward - ClanID
+    [SerializeField] TMP_InputField clanTransferLeadershipAddressInput; // Transfer Leadership - New Address
+    [SerializeField] TMP_InputField clanUpdateInfoNameInput;  // Update Info - Name
+    [SerializeField] TMP_InputField clanUpdateInfoDescInput;  // Update Info - Description
+    [SerializeField] TMP_InputField clanUpdateInfoMottoInput; // Update Info - Motto
+    [SerializeField] TMP_InputField clanUpdateInfoLogoInput;  // Update Info - Logo
     // Objects - View
-    public TMPro.TextMeshProUGUI clanInfoNameText;
-    public TMPro.TextMeshProUGUI clanInfoIDText;
-    public TMPro.TextMeshProUGUI clanInfoMottoText;
-    public TMPro.TextMeshProUGUI clanInfoDescriptionText;
+    [SerializeField] TextMeshProUGUI clanInfoNameText;        // Clan Info
+    [SerializeField] TextMeshProUGUI clanInfoIDText;
+    [SerializeField] TextMeshProUGUI clanInfoMottoText;
+    [SerializeField] TextMeshProUGUI clanInfoDescriptionText;
+    [SerializeField] TextMeshProUGUI clanAvailableMemberRewardText; // Clam Member Reward
 
 
     #endregion
@@ -90,6 +100,7 @@ public class BlockchainManager : MonoBehaviour
 
 
     #region DELETE 
+    [Header("== DELETE ==")]
     public TMPro.TextMeshProUGUI tokenBalanceText;
     public TMPro.TextMeshProUGUI nftBalanceText;
     public TMPro.TextMeshProUGUI itemBalanceText;
@@ -153,21 +164,36 @@ public class BlockchainManager : MonoBehaviour
 
         StartCoroutine(LordMintCall(ToWei(price)));
     }
-    public void Button_UpdateLordSupply(){ StartCoroutine(UpdateLordSupply()); }
+    public void Button_UpdateLordSupply(){ StartCoroutine(GetLordSupply()); }
 
     // Clan
-    public void Button_CreateClan() { StartCoroutine(CreateClanCall()); }
-    public void Button_DeclareClan() { StartCoroutine(DeclareClanCall()); }
-    public void Button_SetMember(bool assignAsMember) { StartCoroutine(SetMemberCall(assignAsMember)); }
-    public void Button_SetExecutor(bool assignAsExecutor) { StartCoroutine(SetExecutorCall(assignAsExecutor)); }
-    public void Button_SetMod(bool assignAsMod) { StartCoroutine(SetModCall(assignAsMod)); }
-    public void Button_GiveMemberPoint(bool isDecreasing)
+    public void Button_ClanCreate() { StartCoroutine(CreateClanCall()); }
+    public void Button_ClanDeclare() { StartCoroutine(DeclareClanCall()); }
+    public void Button_ClanSetMember(bool assignAsMember) { StartCoroutine(SetMemberCall(assignAsMember)); }
+    public void Button_ClanSetExecutor(bool assignAsExecutor) { StartCoroutine(SetExecutorCall(assignAsExecutor)); }
+    public void Button_ClanSetMod(bool assignAsMod) { StartCoroutine(SetModCall(assignAsMod)); }
+    public void Button_ClanGiveMemberPoint(bool isDecreasing)
     {
-        BigInteger point = BigInteger.Parse(ClanGiveMemberPointPointInput.text, System.Globalization.CultureInfo.InvariantCulture);
+        BigInteger point = BigInteger.Parse(clanGiveMemberPointPointInput.text, System.Globalization.CultureInfo.InvariantCulture);
         
         if (point == 0) { print("PLEASE ENTER SOME POINT !!"); return; }
         StartCoroutine(GiveMemberPointCall(point, isDecreasing)); 
     }
+    public void Button_ClanClaimMemberReward() { StartCoroutine(ClaimMemberRewardCall()); }
+    public void Button_ClanTransferLeadership() { StartCoroutine(TransferLeadershipCall()); }
+    public void Button_ClanDisband() { StartCoroutine(DisbandCall()); }
+    public void Button_ClanUpdateInfo() { StartCoroutine(UpdateClanInfoCall()); }
+    public void Button_ClanViewMemberReward() 
+    { 
+        BigInteger clanID = BigInteger.Parse(clanClaimMemberRewardClanIDInput.text);
+        BigInteger roundNumber = BigInteger.Parse(clanClaimMemberRewardRoundInput.text);
+
+        if (clanID == 0 || roundNumber == 0) { print("Invalid Input !!!"); }
+
+        StartCoroutine(ViewMemberRewardCall(clanID, roundNumber)); 
+    }
+    public void Button_ClanViewInfo() { StartCoroutine(ViewClanInfoCall(int.Parse(clanIDSearchInput.text))); }
+
 
     #region DELETE 
     public void UpdateBalanceButton()
@@ -201,6 +227,8 @@ public class BlockchainManager : MonoBehaviour
 
     //******    BLOCKCHAIN FUNCTIONS    ******//
 
+    // Read Token Balance
+
     //------ CLAN CONTRACT ------//
     // Write
     private IEnumerator CreateClanCall()
@@ -208,11 +236,11 @@ public class BlockchainManager : MonoBehaviour
         print("Wallet: " + _selectedAccountAddress);
         print("Creating Clan - Clan Contract: " + contracts[1]); // Clan Contract
         // Paramaters
-        print("Lord ID: " + BigInteger.Parse(CreateClanLordIDInput.text));
-        print("Clan Name: " + CreateClanNameInput.text);
-        print("Clan Description: " + CreateClanDescriptionInput.text);
-        print("Clan Logo URI: " + CreateClanLogoInput.text);
-        print("Clan Motto: " + CreateClanMottoInput.text);
+        print("Lord ID: " + BigInteger.Parse(createClanLordIDInput.text));
+        print("Clan Name: " + createClanNameInput.text);
+        print("Clan Description: " + createClanDescriptionInput.text);
+        print("Clan Logo URI: " + createClanLogoInput.text);
+        print("Clan Motto: " + createClanMottoInput.text);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -220,11 +248,11 @@ public class BlockchainManager : MonoBehaviour
         {
             var callFunction = new Contracts.Contracts.Clan.ContractDefinition.CreateClanFunction
             {
-                LordID = BigInteger.Parse(CreateClanLordIDInput.text),
-                ClanName = CreateClanNameInput.text,
-                ClanDescription = CreateClanDescriptionInput.text,
-                ClanLogoURI = CreateClanLogoInput.text,
-                ClanMotto = CreateClanMottoInput.text
+                LordID = BigInteger.Parse(createClanLordIDInput.text),
+                ClanName = createClanNameInput.text,
+                ClanDescription = createClanDescriptionInput.text,
+                ClanLogoURI = createClanLogoInput.text,
+                ClanMotto = createClanMottoInput.text
             };
 
             yield return contractTransactionUnityRequest.SignAndSendTransaction<
@@ -246,7 +274,7 @@ public class BlockchainManager : MonoBehaviour
         print("Wallet: " + _selectedAccountAddress);
         print("Declaring Clan - Clan Contract: " + contracts[1]); // Clan Contract
         // Paramaters
-        print("Clan ID: " + BigInteger.Parse(ClanIDSearchInput.text));
+        print("Clan ID: " + BigInteger.Parse(clanIDSearchInput.text));
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -254,7 +282,7 @@ public class BlockchainManager : MonoBehaviour
         {
             var callFunction = new Contracts.Contracts.Clan.ContractDefinition.DeclareClanFunction
             {
-                ClanID = BigInteger.Parse(ClanIDSearchInput.text)
+                ClanID = BigInteger.Parse(clanIDSearchInput.text)
             };
 
             yield return contractTransactionUnityRequest.SignAndSendTransaction<
@@ -277,7 +305,7 @@ public class BlockchainManager : MonoBehaviour
         print("Set Member - Clan Contract: " + contracts[1]); // Clan Contract
         // Parameters
         print("Clan ID: " + BigInteger.Parse(clanInfoIDText.text));
-        print("Member Address: " + ClanSetMemberAddressInput.text);
+        print("Member Address: " + clanSetMemberAddressInput.text);
         print("Set As: " + assignAsMember);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -287,7 +315,7 @@ public class BlockchainManager : MonoBehaviour
             var callFunction = new Contracts.Contracts.Clan.ContractDefinition.SetMemberFunction
             {
                 ClanID = BigInteger.Parse(clanInfoIDText.text), // Get the displayed clan ID
-                Address = ClanSetMemberAddressInput.text,
+                Address = clanSetMemberAddressInput.text,
                 SetAsMember = assignAsMember
             };
 
@@ -311,7 +339,7 @@ public class BlockchainManager : MonoBehaviour
         print("Set Executor - Clan Contract: " + contracts[1]); // Clan Contract
         // Parameters
         print("Clan ID: " + BigInteger.Parse(clanInfoIDText.text));
-        print("Executor Address: " + ClanSetExecutorAddressInput.text);
+        print("Executor Address: " + clanSetExecutorAddressInput.text);
         print("Set As: " + assignAsExecutor);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -321,7 +349,7 @@ public class BlockchainManager : MonoBehaviour
             var callFunction = new Contracts.Contracts.Clan.ContractDefinition.SetClanExecutorFunction
             {
                 ClanID = BigInteger.Parse(clanInfoIDText.text), // Get the displayed clan ID
-                Address = ClanSetExecutorAddressInput.text,
+                Address = clanSetExecutorAddressInput.text,
                 SetAsExecutor = assignAsExecutor
             };
 
@@ -345,7 +373,7 @@ public class BlockchainManager : MonoBehaviour
         print("Set Mod - Clan Contract: " + contracts[1]); // Clan Contract
         // Parameters
         print("Clan ID: " + BigInteger.Parse(clanInfoIDText.text));
-        print("Mod Address: " + ClanSetModAddressInput.text);
+        print("Mod Address: " + clanSetModAddressInput.text);
         print("Set As: " + assignAsMod);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -355,7 +383,7 @@ public class BlockchainManager : MonoBehaviour
             var callFunction = new Contracts.Contracts.Clan.ContractDefinition.SetClanModFunction
             {
                 ClanID = BigInteger.Parse(clanInfoIDText.text), // Get the displayed clan ID
-                Address = ClanSetModAddressInput.text,
+                Address = clanSetModAddressInput.text,
                 SetAsMod = assignAsMod
             };
 
@@ -380,7 +408,7 @@ public class BlockchainManager : MonoBehaviour
 
         // Parameters
         print("Clan ID: " + BigInteger.Parse(clanInfoIDText.text));
-        print("Member Address: " + ClanGiveMemberPointAddressInput.text);
+        print("Member Address: " + clanGiveMemberPointAddressInput.text);
         print("Point: " + point);
         print("Is decreasing?: " + isDecreasing);
 
@@ -391,7 +419,7 @@ public class BlockchainManager : MonoBehaviour
             var callFunction = new Contracts.Contracts.Clan.ContractDefinition.GiveMemberPointFunction
             {
                 ClanID = BigInteger.Parse(clanInfoIDText.text), // Get the displayed clan ID
-                MemberAddress = ClanGiveMemberPointAddressInput.text,
+                MemberAddress = clanGiveMemberPointAddressInput.text,
                 Point = point,
                 IsDecreasing = isDecreasing
             };
@@ -410,10 +438,280 @@ public class BlockchainManager : MonoBehaviour
             }
         }
     }
-    // Claim Member Reward
-    // Update Clan Info
-    // Transfer Clan Leadership
-    // Disband Clan
+    private IEnumerator ClaimMemberRewardCall()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Claim Member Reward - Clan Contract: " + contracts[1]); // Clan Contract
+
+        // Parameters
+        print("Clan ID: " + BigInteger.Parse(clanClaimMemberRewardClanIDInput.text));
+        print("Round Number: " + BigInteger.Parse(clanClaimMemberRewardRoundInput.text));
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.Clan.ContractDefinition.MemberRewardClaimFunction
+            {
+                ClanID = BigInteger.Parse(clanClaimMemberRewardClanIDInput.text), // Get the displayed clan ID
+                RoundNumber = BigInteger.Parse(clanClaimMemberRewardRoundInput.text)
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                Contracts.Contracts.Clan.ContractDefinition.MemberRewardClaimFunction
+            >(callFunction, contracts[1]);  // Clan Contract
+
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
+    private IEnumerator UpdateClanInfoCall()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Update Clan Info - Clan Contract: " + contracts[1]); // Clan Contract
+
+        // Parameters
+        print("Clan ID: " + BigInteger.Parse(clanClaimMemberRewardClanIDInput.text));
+        print("Name: " + clanUpdateInfoNameInput.text);
+        print("Description: " + clanUpdateInfoDescInput.text);
+        print("Motto: " + clanUpdateInfoMottoInput.text);
+        print("Logo URI: " + clanUpdateInfoLogoInput.text);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.Clan.ContractDefinition.UpdateClanInfoFunction
+            {
+                ClanID = BigInteger.Parse(clanClaimMemberRewardClanIDInput.text), // Get the displayed clan ID
+                NewName = clanUpdateInfoNameInput.text,
+                NewDescription = clanUpdateInfoDescInput.text,
+                NewMotto = clanUpdateInfoMottoInput.text,
+                NewLogoURI = clanUpdateInfoLogoInput.text,
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                Contracts.Contracts.Clan.ContractDefinition.UpdateClanInfoFunction
+            >(callFunction, contracts[1]);  // Clan Contract
+
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
+    private IEnumerator TransferLeadershipCall()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Transfer Leadership - Clan Contract: " + contracts[1]); // Clan Contract
+
+        // Parameters
+        print("Clan ID: " + BigInteger.Parse(clanInfoIDText.text));
+        print("New Leader Address: " + clanTransferLeadershipAddressInput.text);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.Clan.ContractDefinition.TransferLeadershipFunction
+            {
+                ClanID = BigInteger.Parse(clanInfoIDText.text), // Get the displayed clan ID
+                NewLeader = clanTransferLeadershipAddressInput.text
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                Contracts.Contracts.Clan.ContractDefinition.TransferLeadershipFunction
+            >(callFunction, contracts[1]);  // Clan Contract
+
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
+    private IEnumerator DisbandCall()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Disband - Clan Contract: " + contracts[1]); // Clan Contract
+
+        // Parameters
+        print("Clan ID: " + BigInteger.Parse(clanInfoIDText.text));
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.Clan.ContractDefinition.DisbandClanFunction
+            {
+                ClanID = BigInteger.Parse(clanInfoIDText.text) // Get the displayed clan ID
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                Contracts.Contracts.Clan.ContractDefinition.DisbandClanFunction
+            >(callFunction, contracts[1]);  // Clan Contract
+
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
+
+    // Read
+    private IEnumerator ViewMemberRewardCall(BigInteger clanID, BigInteger roundNumber)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("View Member Reward - Clan Contract: " + contracts[1]);
+        // Parameters
+        print("Clan ID: " + clanID);
+        print("Round Number: " + roundNumber);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.Clan.ContractDefinition.ViewMemberRewardFunction,
+                Contracts.Contracts.Clan.ContractDefinition.ViewMemberRewardOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.Clan.ContractDefinition
+                .ViewMemberRewardFunction()
+            {
+                ClanID = clanID,
+                RoundNumber = roundNumber
+            }, contracts[1]);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            var reward = dtoResult.ReturnValue1;
+
+            clanAvailableMemberRewardText.text = reward.ToString();
+            print("Available Member Reward: " + reward);
+        }
+    }
+    private IEnumerator GetClanOfCall()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Get Clan Of - Clan Contract: " + contracts[1]);
+        // Parameters
+        print("Wallet: " + _selectedAccountAddress);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.Clan.ContractDefinition.GetClanOfFunction,
+                Contracts.Contracts.Clan.ContractDefinition.GetClanOfOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.Clan.ContractDefinition
+                .GetClanOfFunction()
+            {
+                Address = _selectedAccountAddress
+            }, contracts[1]);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            var clanID = dtoResult.ReturnValue1;
+
+            PlayerPrefs.SetInt(_selectedAccountAddress, (int)clanID);
+            ViewClanInfoCall((int)clanID);
+            print("Clan ID of " + _selectedAccountAddress + " : " + clanID);
+        }
+    }
+    private IEnumerator ViewClanInfoCall(int clanID)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("View Clan Info - Clan Contract: " + contracts[1]);
+        // Parameters
+        print("Clan ID: " + clanID);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.Clan.ContractDefinition.ViewClanInfoFunction,
+                Contracts.Contracts.Clan.ContractDefinition.ViewClanInfoOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.Clan.ContractDefinition
+                .ViewClanInfoFunction()
+            {
+                ClanID = clanID
+            }, contracts[1]);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            var res = dtoResult.ReturnValue1;
+            var name = dtoResult.ReturnValue4;
+
+            // ADD : Call Display the clan name function and view the clan info function
+            // GET THE REST OF THE VARS
+            // TEST:
+            clanInfoIDText.text = clanID.ToString();
+            clanInfoNameText.text = dtoResult.ReturnValue4;
+            clanInfoDescriptionText.text = dtoResult.ReturnValue5;
+            clanInfoMottoText.text = dtoResult.ReturnValue6;
+            print("Clan Name: " + name);
+        }
+    }
+    private IEnumerator GetClanPointsCall(int clanID)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Get Clan Points - Clan Contract: " + contracts[1]);
+        // Parameters
+        print("Clan ID: " + clanID);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.Clan.ContractDefinition.GetClanPointsFunction,
+                Contracts.Contracts.Clan.ContractDefinition.GetClanPointsOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.Clan.ContractDefinition
+                .GetClanPointsFunction()
+            {
+                ClanID = clanID
+            }, contracts[1]);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            var res = dtoResult.ReturnValue1;
+            var point = dtoResult.ReturnValue2;
+
+            // ADD : Call View the clan points function
+            // GET THE REST OF THE VARS
+            print("Clan Point: " + point);
+        }
+    }
 
     //------ LORD CONTRACT ------//
 
@@ -451,7 +749,7 @@ public class BlockchainManager : MonoBehaviour
     // DAO Vote
 
     // Read
-    public IEnumerator UpdateLordSupply()
+    public IEnumerator GetLordSupply()
     {
         print("Wallet: " + _selectedAccountAddress);
         print("Lord Contract: " + contracts[7]);
@@ -485,6 +783,9 @@ public class BlockchainManager : MonoBehaviour
     // New Porposal
     // Vote
     // Spending Proposal Claim Functions
+
+    // Read
+    // Read DAO Balance
 
     //------ ROUND CONTRACT ------//
     // Write

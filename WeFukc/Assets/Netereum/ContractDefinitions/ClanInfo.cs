@@ -29,8 +29,8 @@ namespace Contracts.Contracts.Clan.ContractDefinition
         public virtual bool CanExecutorsSignalRebellion { get; set; }
         [Parameter("bool", "canExecutorsSetPoint", 9)]
         public virtual bool CanExecutorsSetPoint { get; set; }
-        [Parameter("bool", "canModerateMembers", 10)]
-        public virtual bool CanModerateMembers { get; set; }
+        [Parameter("bool", "canModsSetMembers", 10)]
+        public virtual bool CanModsSetMembers { get; set; }
         [Parameter("bool", "isDisbanded", 11)]
         public virtual bool IsDisbanded { get; set; }
     }
