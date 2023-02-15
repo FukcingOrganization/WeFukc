@@ -8,13 +8,22 @@ using UnityEngine.UI;
 public class CloseMeUI : MonoBehaviour
 {
     [SerializeField] GameObject canvas;
+    [SerializeField] bool findCanvasWithTag;
+    [SerializeField] string targetTag;
     GraphicRaycaster raycaster;
 
     PointerEventData clickData;
     List<RaycastResult> clickResults;
 
+    private void Awake()
+    {
+    }
+
     void Start()
     {
+        if (findCanvasWithTag)
+            canvas = GameObject.FindGameObjectWithTag(targetTag);
+
         raycaster = canvas.GetComponent<GraphicRaycaster>();
         clickData = new PointerEventData(EventSystem.current);
         clickResults = new List<RaycastResult>();

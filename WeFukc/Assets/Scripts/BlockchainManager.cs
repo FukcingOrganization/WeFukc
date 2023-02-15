@@ -40,7 +40,7 @@ public class BlockchainManager : MonoBehaviour
     private BigInteger desiredChainID = 421613; // Arbi Goerli
     string[] contracts = new string[] {
       "0xd5DdaF6df51220a17E2292cF4A64ae6510c5415e", // 0- Boss
-      "0x977c94Afe8C3B80beF6f2386Fd7d7B016754407A", // 1- Clan
+      "0xAe7F338bEc15Aa8aC310A0D2139fcdf3D7E3a447", // 1- Clan
       "0xfBeede26a1F88745c2091a39E47fd10eFC7e8E5F", // 2- License
       "0xdC0F3C29b0D2a615cB7b46e59D7F7271962730F9", // 3- Community
       "0x40436Cb71F18594185ef6098631aADDB6d35Ca0B", // 4- DAO
@@ -183,6 +183,8 @@ public class BlockchainManager : MonoBehaviour
     public void Button_ClanTransferLeadership() { StartCoroutine(TransferLeadershipCall()); }
     public void Button_ClanDisband() { StartCoroutine(DisbandCall()); }
     public void Button_ClanUpdateInfo() { StartCoroutine(UpdateClanInfoCall()); }
+    public void Button_MintLicense(LordContainer lord, BigInteger _amount) { StartCoroutine(MintLicenseCall(lord, _amount)); }
+    public void Button_LordDAOvote(LordContainer lord, BigInteger _proposalID, bool _isApproving) { StartCoroutine(LordDAOvoteCall(lord, _proposalID, _isApproving)); }
     public void Button_ClanViewMemberReward() 
     { 
         BigInteger clanID = BigInteger.Parse(clanClaimMemberRewardClanIDInput.text);
@@ -719,7 +721,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator LordMintCall(BigInteger _amountToSend)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Lord Contract: " + contracts[7]); // Lord Contract
+        print("Lord Mint - Lord Contract: " + contracts[7]); // Lord Contract
         print("Given BigInteger: " + _amountToSend.ToString());
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -745,8 +747,72 @@ public class BlockchainManager : MonoBehaviour
             }
         }
     }
-    // Mint License
-    // DAO Vote
+    public IEnumerator MintLicenseCall(LordContainer lord, BigInteger _amount)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Mint License - Lord Contract: " + contracts[7]); // Lord Contract
+        print("Amount: " + _amount);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.Lord.ContractDefinition.MintClanLicenseFunction
+            {
+                Amount = _amount
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                Contracts.Contracts.Lord.ContractDefinition.MintClanLicenseFunction
+            >(callFunction, contracts[7]);  // Lord Contract
+
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+                lord.MintSuccess();
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
+    public IEnumerator LordDAOvoteCall(LordContainer lord, BigInteger _proposalID, bool _isApproving)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("DAO Vote - Lord Contract: " + contracts[7]); // Lord Contract
+        print("Lord ID: " + lord.lordID);
+        print("Proposal ID: " + _proposalID);
+        print("is Approving?: " + _isApproving);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.Lord.ContractDefinition.DAOvoteFunction
+            {
+                LordID = lord.lordID,
+                ProposalID = _proposalID,
+                IsApproving = _isApproving
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                Contracts.Contracts.Lord.ContractDefinition.DAOvoteFunction
+            >(callFunction, contracts[7]);  // Lord Contract
+
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+                lord.VoteSuccess();
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
+    // LATER: Update Name and Description
+    // LATER: Update License
 
     // Read
     public IEnumerator GetLordSupply()
@@ -777,6 +843,10 @@ public class BlockchainManager : MonoBehaviour
             print("Lord Supply: " + supply);
         }
     }
+    // Lord Name and Description
+    // Number of clans
+    // Number of licenses
+    // Collected Taxes
 
     //------ DAO CONTRACT ------//
     // Write
@@ -802,6 +872,10 @@ public class BlockchainManager : MonoBehaviour
     // Write
     // Mint
     // Burn
+
+    //------ ITEM CONTRACT ------//
+    // Write
+    // Rent
 
 
 
