@@ -61,9 +61,9 @@ public class BlockchainManager : MonoBehaviour
     #region LORD
     [Header("== Lord Objects ==")]
     // Objects
-    public TMPro.TMP_InputField lordPriceInput;
-    public TMPro.TextMeshProUGUI lordSupplyText;
-    public TMPro.TextMeshProUGUI lordCurrentCostText;
+    [SerializeField] TMP_InputField lordPriceInput;
+    [SerializeField] TextMeshProUGUI lordSupplyText;
+    [SerializeField] TextMeshProUGUI lordCurrentCostText;
     #endregion
 
     #region CLAN 
@@ -97,18 +97,35 @@ public class BlockchainManager : MonoBehaviour
 
     #endregion
 
+    #region ROUND
+    [Header("== Round Objects ==")]
+    // Objects
+    [SerializeField] TMP_InputField backerRoundInput;
+    [SerializeField] TextMeshProUGUI[] backerRewards = new TextMeshProUGUI[11];
+    [SerializeField] TextMeshProUGUI[] backerFunds = new TextMeshProUGUI[11];
+    [SerializeField] TextMeshProUGUI[] totalFunds = new TextMeshProUGUI[11];
+    [SerializeField] TextMeshProUGUI[] numOfBackers = new TextMeshProUGUI[11];
+    #endregion
 
+
+    #region DAO
+    [Header("== DAO Objects ==")]
+    // Objects
+    [SerializeField] TMP_InputField proposalDescription;
+    [SerializeField] TextMeshProUGUI tetet;
+    [SerializeField] TMP_Dropdown proposalTypeInput;
+    #endregion
 
     #region DELETE 
     [Header("== DELETE ==")]
-    public TMPro.TextMeshProUGUI tokenBalanceText;
-    public TMPro.TextMeshProUGUI nftBalanceText;
-    public TMPro.TextMeshProUGUI itemBalanceText;
+    TextMeshProUGUI tokenBalanceText;
+    TextMeshProUGUI nftBalanceText;
+    TextMeshProUGUI itemBalanceText;
 
-    public TMPro.TextMeshProUGUI nftAllowanceText;
-    public TMPro.TextMeshProUGUI itemAllowanceText;
-    public TMPro.TextMeshProUGUI mintNFTButtonText;
-    public TMPro.TextMeshProUGUI mintItemButtonText;
+    TextMeshProUGUI nftAllowanceText;
+    TextMeshProUGUI itemAllowanceText;
+    TextMeshProUGUI mintNFTButtonText;
+    TextMeshProUGUI mintItemButtonText;
     
 
     private BigInteger nftAllowance;
@@ -121,6 +138,32 @@ public class BlockchainManager : MonoBehaviour
     double mintAmount = 5.3;
     double currentAllowance;
     #endregion
+
+    /* BlockchainReader Script:
+     * 
+     * at the Begninning
+     * --> Read token and DAO balance
+     * --> Get the clan of wallet
+     * --> If wallet changes, update all info
+     * 
+     * at Profile/Items Canvas
+     * --> Check if any allowance needed for mints
+     * --> Get Owned Items
+     * 
+     * at Profile/Lord Canvas
+     * --> Get Owned Lords and their infos
+     * 
+     * at Profile/Clan Canvas
+     * --> Get current clan's info
+     * 
+     * at Election Canvas
+     * --> Get Boss Supply and add existing bosses to the boss list
+     * --> Get current round's backer rewards
+     * 
+     * at DAO canvas
+     * --> Get all active proposals
+     * --> Get last 10 passed/rejected proposals
+     * 
 
     /* Notes
         - Always give much higer (like 10x) allowance when you increase compared to when you check allowance.
@@ -147,7 +190,7 @@ public class BlockchainManager : MonoBehaviour
     
 
     //******    BUTTONS    ******//
-    // LORD
+    // Lord
     public void Button_LordMint()
     {
         print("string: " + lordPriceInput.text);
@@ -196,6 +239,26 @@ public class BlockchainManager : MonoBehaviour
     }
     public void Button_ClanViewInfo() { StartCoroutine(ViewClanInfoCall(int.Parse(clanIDSearchInput.text))); }
 
+    // Round
+    public void Button_RoundGetBackerInfo() { StartCoroutine(GetBackerRewardCall()); }
+
+    // DAO
+    public void Button_DAOnewProposal() { StartCoroutine(NewProposalCall()); }
+    public void Button_DAOvote(BigInteger _proposalID, bool _approve) { 
+        // Check if the account has enough DAO tokens
+        StartCoroutine(VoteCall(_proposalID, _approve)); 
+    }
+    public void Button_RoundFund(bool fund, BigInteger level, BigInteger bossID, BigInteger amount)
+    {
+        if (fund)
+            StartCoroutine(FundBossCall(level, bossID, amount));
+        else
+            StartCoroutine(DefundBossCall(level, bossID, amount));
+    }
+
+    // Item
+    public void Button_ItemMint(BigInteger id, BigInteger amount) { StartCoroutine(MintItemCall(id, amount)); }
+    public void Button_ItemBurn(List<BigInteger> ids, List<BigInteger> amounts) { StartCoroutine(BurnItemsCall(ids, amounts)); }
 
     #region DELETE 
     public void UpdateBalanceButton()
@@ -225,6 +288,26 @@ public class BlockchainManager : MonoBehaviour
 
 
 
+/*
+ * 
+ * 
+ * 
+ *              UPDATE Round and Clan Contract Definitions
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ *              CONVERT ALL TOKEN RELATED VALUES TO WEI !!!!
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * */
 
 
     //******    BLOCKCHAIN FUNCTIONS    ******//
@@ -715,8 +798,9 @@ public class BlockchainManager : MonoBehaviour
         }
     }
 
-    //------ LORD CONTRACT ------//
+    
 
+    //------ LORD CONTRACT ------//
     // Write
     private IEnumerator LordMintCall(BigInteger _amountToSend)
     {
@@ -844,38 +928,342 @@ public class BlockchainManager : MonoBehaviour
         }
     }
     // Lord Name and Description
-    // Number of clans
-    // Number of licenses
-    // Collected Taxes
+    // Number of clans      -- Lord
+    // Number of licenses   -- Clan Cont
+    // Collected Taxes      -- Clan Cont
+
+
 
     //------ DAO CONTRACT ------//
     // Write
-    // New Porposal
-    // Vote
-    // Spending Proposal Claim Functions
+    private IEnumerator NewProposalCall()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("New Proposal - DAO Contract: " + contracts[4]); // DAO Contract
+
+        string selectedText = proposalTypeInput.options[proposalTypeInput.value].text;
+        print("Selected: " + selectedText);
+
+        BigInteger type;
+        switch (selectedText)
+        {
+            case "1 Hour":
+                type = 1;
+                break;
+            case "1 Day":
+                type = 2;
+                break;
+            case "3 Days":
+                type = 3;
+                break;
+            default:
+                type = 3;
+                break;
+        }
+
+        print("Description: " + proposalDescription.text);
+        print("Proposal Type: " + type);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.DAO.ContractDefinition.NewProposalFunction
+            {
+                Description = proposalDescription.text,
+                ProposalType = type
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                Contracts.Contracts.DAO.ContractDefinition.NewProposalFunction
+            >(callFunction, contracts[4]);  // DAO Contract
+
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
+    private IEnumerator VoteCall(BigInteger _proposalID, bool _approve)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Vote - DAO Contract: " + contracts[4]); // DAO Contract
+        print("Proposal ID: " + _proposalID);
+        print("Approve?: " + _approve);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.DAO.ContractDefinition.VoteFunction
+            {
+                ProposalID = _proposalID,
+                IsApproving = _approve
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                Contracts.Contracts.DAO.ContractDefinition.VoteFunction
+            >(callFunction, contracts[4]);  // DAO Contract
+
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
+    // LATER: Spending Proposal Claim Functions
 
     // Read
-    // Read DAO Balance
+    public IEnumerator GetDAOBalanceCall()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("DAO Contract: " + contracts[4]);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.DAO.ContractDefinition.BalanceOfFunction,
+                Contracts.Contracts.DAO.ContractDefinition.BalanceOfOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.DAO.ContractDefinition
+                .BalanceOfFunction()
+            {
+                Account = _selectedAccountAddress
+            }, contracts[4]);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            var DAObalance = dtoResult.ReturnValue1;
+            print("DAO Balance: " + DAObalance);
+        }
+    }
+
+
 
     //------ ROUND CONTRACT ------//
     // Write
-    // Fund Boss
-    // Defund Boss
-    // Player Reward Claim
-    // Backer Reward Claim
+    private IEnumerator FundBossCall(BigInteger level, BigInteger bossID, BigInteger amount)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Fund Boss - Round Contract: " + contracts[9]); // Round Contract
 
-    //------ COMMUNITY CONTRACT ------//
-    // Write
-    // Claim Reward
+        print("Level: " + level);
+        print("Boss ID: " + bossID);
+        print("Amount: " + amount);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.Round.ContractDefinition.FundBossFunction
+            {
+                LevelNumber = level,
+                BossID = bossID,
+                FundAmount = ToWei((double)amount)
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                Contracts.Contracts.Round.ContractDefinition.FundBossFunction
+            >(callFunction, contracts[9]);  // Round Contract
+
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
+    private IEnumerator DefundBossCall(BigInteger level, BigInteger bossID, BigInteger amount)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Defund Boss - Round Contract: " + contracts[9]); // Round Contract
+
+        print("Level: " + level);
+        print("Boss ID: " + bossID);
+        print("Amount: " + amount);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.Round.ContractDefinition.FundBossFunction
+            {
+                LevelNumber = level,
+                BossID = bossID,
+                FundAmount = ToWei((double)amount)
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                Contracts.Contracts.Round.ContractDefinition.FundBossFunction
+            >(callFunction, contracts[9]);  // Round Contract
+
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
+    private IEnumerator ClaimBackerRewardCall(BigInteger roundNumber)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Claim Backer Reward- Round Contract: " + contracts[9]); // Round Contract
+
+        print("Round: " + roundNumber);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.Round.ContractDefinition.ClaimBackerRewardFunction
+            {
+                RoundNumber = roundNumber
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                Contracts.Contracts.Round.ContractDefinition.ClaimBackerRewardFunction
+            >(callFunction, contracts[9]);  // Round Contract
+
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
+
+
+    // public List<byte[]> GetProof(byte[] hashLeaf) --> hashLeaf ??
+    // 
+
+    // Read
+    private IEnumerator GetBackerRewardCall()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Get Backer Reward - Round Contract: " + contracts[9]);
+        // Parameters
+        print("Round Number: " + backerRoundInput.text);
+
+        BigInteger roundNumber = BigInteger.Parse(backerRoundInput.text);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.Round.ContractDefinition.GetBackerRewardsFunction,
+                Contracts.Contracts.Round.ContractDefinition.GetBackerRewardsOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.Round.ContractDefinition
+                .GetBackerRewardsFunction()
+            {
+                RoundNumber = roundNumber
+            }, contracts[9]);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            var res = dtoResult.ReturnValue1;
+
+            // ADD : Call Display the clan name function and view the clan info function
+            // GET THE REST OF THE VARS
+            // TEST:
+            print("Clan Name: ");
+        }
+    }
+
+
 
     //------ ITEM CONTRACT ------//
     // Write
-    // Mint
-    // Burn
+    private IEnumerator MintItemCall(BigInteger id, BigInteger amount)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Mint - Items Contract: " + contracts[6]); // Item Contract
 
-    //------ ITEM CONTRACT ------//
-    // Write
-    // Rent
+        print("id: " + id);
+        print("Amount: " + amount);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.Items.ContractDefinition.MintFunction
+            {
+                Id = id,
+                Amount = amount,
+                Data = new byte[0]
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                Contracts.Contracts.Items.ContractDefinition.MintFunction
+            >(callFunction, contracts[6]);  // Item Contract
+
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
+    private IEnumerator BurnItemsCall(List<BigInteger> ids, List<BigInteger> amounts)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Mint - Items Contract: " + contracts[6]); // Item Contract
+
+        print("id: " + ids);
+        print("Amount: " + amounts);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.Items.ContractDefinition.BurnBatchFunction
+            {
+                Account = _selectedAccountAddress,
+                Ids = ids,
+                Values = amounts
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                Contracts.Contracts.Items.ContractDefinition.BurnBatchFunction
+            >(callFunction, contracts[6]);  // Item Contract
+
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
 
 
 

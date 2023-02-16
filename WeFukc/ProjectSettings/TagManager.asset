@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Ground
   - Lord Canvas
+  - Boss Level
+  - Boss List
   layers:
   - Default
   - TransparentFX
