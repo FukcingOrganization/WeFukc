@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class LevelManager : MonoBehaviour
 {
-    [Header("Fukcing Level")]
+    [Header("Level")]
     [SerializeField] private bool fukcingLevel = false;
     [SerializeField] private TextMeshProUGUI flevel_playerName;
     [SerializeField] private TextMeshProUGUI flevel_bossName;
@@ -28,7 +28,6 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private GameObject[] electionAnims;
     [SerializeField] private GameObject[] daoAnims;
 
-    [SerializeField] private TextMeshProUGUI[] addressTexts;
 
     [SerializeField] private TextMeshProUGUI menu_playerName;
     [SerializeField] private GameObject menu_playerNameInputUI;
@@ -45,10 +44,13 @@ public class LevelManager : MonoBehaviour
 
     private string connectedAccount;
 
-    BlockchainManager bcManager;
+    BlockchainManager chainManager;
+    BlockchainReader chainReader;
 
     void Start()
     {
+        chainManager = GetComponent<BlockchainManager>();
+
         if (fukcingLevel)
         {
             // Get the name of the boss
@@ -200,14 +202,9 @@ public class LevelManager : MonoBehaviour
     }
 
     // Set Connected Account
-    public void SetConnectedAccount(string newAccount)
+    public void walletConnected(string newAccount)
     {
         connectedAccount = newAccount;
-
-        foreach (TextMeshProUGUI text in addressTexts)
-        {
-            text.text = newAccount.Substring(0, 6) + "...." + newAccount.Substring(38, 4);
-        }
 
         if (newAccount != "")
         {
@@ -220,7 +217,7 @@ public class LevelManager : MonoBehaviour
 
     public void CheckConnection()
     {
-        connectedAccount = FindObjectOfType<BlockchainManager>().GetConnectedAddress();
+        connectedAccount = chainManager.GetConnectedAddress();
 
         Debug.Log("Checking Connection: " + connectedAccount);
 
@@ -229,10 +226,7 @@ public class LevelManager : MonoBehaviour
             menuButtons.SetActive(true);
             connectButton.SetActive(false);
 
-            foreach (TextMeshProUGUI text in addressTexts)
-            {
-                text.text = connectedAccount.Substring(0, 6) + "...." + connectedAccount.Substring(38, 4);
-            }
+            chainReader.OnWalletChange(connectedAccount);
         }
         else
         {
