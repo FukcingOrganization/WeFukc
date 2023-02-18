@@ -18,6 +18,10 @@ public class BlockchainReader : MonoBehaviour
     [SerializeField] TextMeshProUGUI clanInfoMottoText;
     [SerializeField] TextMeshProUGUI clanInfoDescriptionText;
 
+    [SerializeField] TextMeshProUGUI[] itemBalanceTexts;
+    [SerializeField] GameObject[] approveButtons;
+
+
     // Variables
     BlockchainManager chainManager;
 
@@ -25,16 +29,18 @@ public class BlockchainReader : MonoBehaviour
     public ClanInfo clanInfo;
     string accountAddress;
 
+    bool itemMintAllowance;
+
     /* BlockchainReader Script:
      * 
-     * at the Begninning
-     * --> Read token and DAO balance
-     * --> Get the clan of wallet
-     * --> If wallet changes, update all info
-     * 
-     * at Profile/Items Canvas
-     * --> Check if any allowance needed for mints
-     * --> Get Owned Items
+                         * at the Begninning
+                         * --> Read token and DAO balance
+                         * --> Get the clan of wallet
+                         * --> If wallet changes, update all info
+                         * 
+                         * at Profile/Items Canvas
+                         * --> Check if any allowance needed for mints
+                         * --> Get Owned Items
      * 
      * at Profile/Lord Canvas
      * --> Get Owned Lords and their infos
@@ -73,6 +79,7 @@ public class BlockchainReader : MonoBehaviour
         if (chainManager == null) { chainManager = FindObjectOfType<BlockchainManager>(); }
     }
 
+    // Basic Info Display
     public void OnWalletChange(string address)
     {
         accountAddress = address;
@@ -87,22 +94,21 @@ public class BlockchainReader : MonoBehaviour
         chainManager.Button_TokenBalanceUpdate();
         chainManager.Button_DAOBalanceUpdate();
     }
-
-    public void UpdateTokenBalance(double balance)
+    public void WriteTokenBalance(double balance)
     {
         foreach (var text in tokenBalanceTexts)
         {
             text.text = ((int)balance).ToString() + " STICK";
         }
     }
-    public void UpdateDAOBalance(double balance)
+    public void WriteDAOBalance(double balance)
     {
         foreach (var text in daoBalanceTexts)
         {
             text.text = ((int)balance).ToString() + " STICK";
         }
     }
-    public void UpdateClanInfo(ClanInfo info)
+    public void WriteClanInfo(ClanInfo info)
     {
         clanInfo = info;
 
@@ -117,5 +123,31 @@ public class BlockchainReader : MonoBehaviour
         clanInfoIDText.text = info.id.ToString();
         clanInfoMottoText.text = info.motto;
         clanInfoDescriptionText.text = info.description;
+    }
+    
+    // Check Item Balance
+    public void Button_ItemCheckBalance()
+    {
+        chainManager.Button_ItemBalanceOfBatch(
+            new List<string> { accountAddress }, new List<BigInteger> { 1, 2, 3, 4, 5 }
+        );
+    }
+    public void WriteItemMintAllowance(bool allowanceGiven) { 
+        itemMintAllowance = allowanceGiven;
+        if (allowanceGiven)
+        {
+            // Deactivate allowance buttons
+            foreach (GameObject button in approveButtons)
+            {
+                button.SetActive(false);
+            }
+        }
+    }
+    public void WriteItemBalance(List<BigInteger> balances)
+    {
+        for (int i = 0; i < balances.Count; i++) 
+        { 
+            itemBalanceTexts[i].text = balances[i].ToString(); 
+        }
     }
 }

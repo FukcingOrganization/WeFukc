@@ -243,6 +243,9 @@ public class BlockchainManager : MonoBehaviour
     // Item
     public void Button_ItemMint(BigInteger id, BigInteger amount) { StartCoroutine(MintItemCall(id, amount)); }
     public void Button_ItemBurn(List<BigInteger> ids, List<BigInteger> amounts) { StartCoroutine(BurnItemsCall(ids, amounts)); }
+    public void Button_ItemBalanceOfBatch(List<string> accounts, List<BigInteger> ids) { StartCoroutine(BalanceOfBatchCall(accounts, ids)); }
+    public void Button_ItemCheckMintAllowance() { StartCoroutine(ItemMintAllowanceCheckCall()); }
+    public void Button_ItemIncreaseTokenAllowance() { StartCoroutine(ItemMintAllowanceCall()); }
 
     #region DELETE 
     public void UpdateBalanceButton()
@@ -322,14 +325,14 @@ public class BlockchainManager : MonoBehaviour
             var dtoResult = queryRequest.Result;
             var balance = dtoResult.ReturnValue1;
 
-            chainReader.UpdateTokenBalance(FromWei(balance));
+            chainReader.WriteTokenBalance(FromWei(balance));
             print("Balance of " + _selectedAccountAddress + " : " + FromWei(balance));
         }
     }
     private IEnumerator DAOBalanceOfCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Balance Of - Token Contract: " + contracts[4]);
+        print("Balance Of - DAO Contract: " + contracts[4]);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -351,8 +354,41 @@ public class BlockchainManager : MonoBehaviour
             var dtoResult = queryRequest.Result;
             var balance = dtoResult.ReturnValue1;
 
-            chainReader.UpdateDAOBalance(FromWei(balance));
+            chainReader.WriteDAOBalance(FromWei(balance));
             print("Balance of " + _selectedAccountAddress + " : " + FromWei(balance));
+        }
+    }
+    private IEnumerator ItemMintAllowanceCheckCall()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Item Contract Allowance - Token Contract: " + contracts[11]);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.Token.ContractDefinition.AllowanceFunction,
+                Contracts.Contracts.Token.ContractDefinition.AllowanceOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.Token.ContractDefinition
+                .AllowanceFunction()
+            {
+                Owner = _selectedAccountAddress,
+                Spender = contracts[6]
+            }, contracts[11]);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            var allowance = FromWei(dtoResult.ReturnValue1);
+
+            if (allowance > 1000000000) // If the allowance is more than 1 billion token
+            {
+                chainReader.WriteItemMintAllowance(true);
+            }
+            print("Allowance Of " + _selectedAccountAddress + " : " + allowance);
         }
     }
 
@@ -803,7 +839,7 @@ public class BlockchainManager : MonoBehaviour
                 dtoResult.ReturnValue10, dtoResult.ReturnValue11
             );
             
-            chainReader.UpdateClanInfo(clan);   // Send it to the reader
+            chainReader.WriteClanInfo(clan);   // Send it to the reader
             print("Clan ID: " + clan.id);
             print("Clan Name: " + clan.name);
         }
@@ -1308,6 +1344,73 @@ public class BlockchainManager : MonoBehaviour
             }
         }
     }
+    private IEnumerator ItemMintAllowanceCall()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Giving Token Allowance to Item Cont - Token Contract: " + contracts[11]); // Token Contract
+        print("Item Contract: " + contracts[6]); // Item Contract
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.Token.ContractDefinition.IncreaseAllowanceFunction
+            {
+                Spender = contracts[6], // item contract
+                AddedValue = ToWei(1000000000)  // 1 billion allowance                
+            };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction<
+                Contracts.Contracts.Token.ContractDefinition.IncreaseAllowanceFunction
+            >(callFunction, contracts[11]);  // Item Contract
+
+            if (contractTransactionUnityRequest.Exception == null)
+            {
+                print(contractTransactionUnityRequest.Result);
+                chainReader.WriteItemMintAllowance(true);
+            }
+            else
+            {
+                print(contractTransactionUnityRequest.Exception.Message);
+            }
+        }
+    }
+
+    // Read
+    private IEnumerator BalanceOfBatchCall(List<string> accounts, List<BigInteger> ids)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Balance Of Batch - Items Contract: " + contracts[6]); // Item Contract
+
+        foreach (string account in accounts) { print("Account: " + account); }
+        foreach (BigInteger id in ids) { print("Id: " + id); }
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.Items.ContractDefinition.BalanceOfBatchFunction,
+                Contracts.Contracts.Items.ContractDefinition.BalanceOfBatchOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.Items.ContractDefinition
+                .BalanceOfBatchFunction()
+            {
+                Accounts = accounts,
+                Ids = ids
+            }, contracts[6]);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+
+            chainReader.WriteItemBalance(dtoResult.ReturnValue1);
+            print("Item Balance has sent to the blockchainReader!");
+        }
+    }
+
+
 
 
 
