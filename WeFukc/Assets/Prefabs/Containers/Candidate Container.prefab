@@ -2377,7 +2377,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 0
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f79675f8aee349d49a4a05f5bdd3bf30, type: 2}
   m_sharedMaterial: {fileID: 5804713818067618832, guid: f79675f8aee349d49a4a05f5bdd3bf30, type: 2}
@@ -3086,11 +3086,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 118b249517770c34d829224f307c8c35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  nameText: {fileID: 8330024292627797132}
+  idText: {fileID: 8330024291925226727}
+  rektText: {fileID: 0}
+  descriptionText: {fileID: 0}
+  votesText: {fileID: 8330024292326893561}
+  allFundsText: {fileID: 8330024293021876688}
+  userFundsText: {fileID: 8330024292447526969}
+  profitText: {fileID: 8330024292757857517}
   levelInput: {fileID: 0}
   fundAmountInput: {fileID: 359493178}
   defundAmountInput: {fileID: 1486545150}
   fundingPopup: {fileID: 682182710}
   defundingPopup: {fileID: 816681227}
+  image: {fileID: 8330024293737428183}
+  sprites: []
 --- !u!1 &8330024292447526971
 GameObject:
   m_ObjectHideFlags: 0
@@ -3103,7 +3113,7 @@ GameObject:
   - component: {fileID: 8330024292447526974}
   - component: {fileID: 8330024292447526969}
   m_Layer: 5
-  m_Name: All Funds Text
+  m_Name: USer Funds Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3427,7 +3437,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 100 % (2x)
+  m_text: 100% (2x)
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f79675f8aee349d49a4a05f5bdd3bf30, type: 2}
   m_sharedMaterial: {fileID: 5804713818067618832, guid: f79675f8aee349d49a4a05f5bdd3bf30, type: 2}

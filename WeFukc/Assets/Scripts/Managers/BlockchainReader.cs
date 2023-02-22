@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -42,9 +43,13 @@ public class BlockchainReader : MonoBehaviour
     [Header("Election")]
     [SerializeField] BossContainer bossPrefab;
     [SerializeField] GameObject bossListPanel;
+    [SerializeField] TextMeshProUGUI[] electionRewardTexts;
+    [SerializeField] TMP_InputField TEST_currentRoundInput; // NOT IN USE
+    [SerializeField] BossContainer candidatePrefab;
+    [SerializeField] GameObject[] candidatePanels;
 
 
-    // Variables
+    // References
     BlockchainManager chainManager;
 
     [HideInInspector]
@@ -58,10 +63,15 @@ public class BlockchainReader : MonoBehaviour
 
     bool walletInfoSet;
     bool itemInfoSet;
-    bool lordInfoSet;
+    bool lordInfoSet; 
+    bool bossListed;
+    [HideInInspector]
+    public bool clanInfoSet;
 
-    bool itemMintAllowance;
     int roundTotalClanReward;
+    [HideInInspector]
+    public int currentRound;
+    public double[] backerRewards;
 
     /* BlockchainReader Script:
      * 
@@ -80,10 +90,11 @@ public class BlockchainReader : MonoBehaviour
                          * at Profile/Clan Canvas
                          * --> Get current clan's info
                          * 
-     * at Election Canvas
-     * --> Get Boss Supply and add existing bosses to the boss list
-     * --> Get current round's backer rewards
-     * 
+                         * at Election Canvas
+                         * --> Get Boss Supply and add existing bosses to the boss list
+                         * --> Get current round's backer rewards
+                         * --> Display candidates
+                         * 
      * at DAO canvas
      * --> Get all active proposals
      * --> Get last 10 passed/rejected proposals
@@ -111,11 +122,6 @@ public class BlockchainReader : MonoBehaviour
         if (chainManager == null) { chainManager = FindObjectOfType<BlockchainManager>(); }
     }
 
-    /**
-     *  MAKE BUTTON CALLS, STARTCOUROUTINE CALL
-     *  
-     */
-
     // Basic Info Display
     public void OnWalletChange(string address)
     {
@@ -133,6 +139,7 @@ public class BlockchainReader : MonoBehaviour
         StartCoroutine(chainManager.WalletClanCall());
         StartCoroutine(chainManager.TokenBalanceOfCall());
         StartCoroutine(chainManager.DAOBalanceOfCall());
+        StartCoroutine(chainManager.GetCurrentRoundNumberCall());
 
         walletInfoSet = true;
     }
@@ -164,7 +171,6 @@ public class BlockchainReader : MonoBehaviour
         itemInfoSet = true;
     }
     public void WriteItemMintAllowance(bool allowanceGiven) { 
-        itemMintAllowance = allowanceGiven;
         if (allowanceGiven)
         {
             // Deactivate allowance buttons
@@ -202,22 +208,18 @@ public class BlockchainReader : MonoBehaviour
             StartCoroutine(chainManager.LordIDCall((BigInteger)i));
         }
     }
-    public void OnLordIDReturn(Lord lordInfo)
+    public void OnLordIDReturn(int lordID)
     {
         // First, create the empty prefab
         Lord newLord = Instantiate(lordPrefab, lordPanel.transform);
         // Then, write the info on it
-        newLord = lordInfo;
-
-        // Get number of clans, license and collected taxes for this lord
-        StartCoroutine(chainManager.LordNumberOfClansCall(newLord));
-        StartCoroutine(chainManager.LordNumberOfLicenseCall(newLord));
-        StartCoroutine(chainManager.LordCollectedTaxesCall(newLord));
+        newLord.SetID(lordID);
     }
 
     // Clan
     public void Button_ViewMyClan()
     {
+        clanInfoSet = false;
         DisplayClanInfo(walletClan);
         DisplayClanPoints(walletClan);
     }
@@ -234,6 +236,8 @@ public class BlockchainReader : MonoBehaviour
         clanInfoIDText.text = clan.id.ToString();
         clanInfoMottoText.text = clan.motto;
         clanInfoDescriptionText.text = clan.description;
+
+        if (clan.id == walletClan.id) { clanInfoSet = true; }
     }
     public void DisplayClanPoints(Clan clan)
     {
@@ -275,5 +279,65 @@ public class BlockchainReader : MonoBehaviour
 
     // Election
 
+    /*
+     *      TO DO
+     *  - Get the candidates
+     *  - Display them
+     *  
+     */
 
+    public void Button_ListBosses()
+    {
+        // if info already set, then skip it!
+        if (bossListed) { return; }
+
+        // Gets the supply and triggers the display function
+        StartCoroutine(chainManager.BossSupplyCall());  
+
+        // Gets the rewards and triggers the display function
+        StartCoroutine(chainManager.GetCurrentBackerRewardCall());
+
+        // Get the candidates for each level
+        for (int i = 0; i < 10; i++)
+        {
+            StartCoroutine(chainManager.GetLevelCandidatesCall(
+                (BigInteger)currentRound, (BigInteger)i
+            ));
+        }
+
+        bossListed = true;
+    }
+    public void OnBossSupplyReturn(int supply)
+    {
+        for (int i = 0; i < supply; i++)
+        {
+            // First, create the empty prefab
+            BossContainer newBoss = Instantiate(bossPrefab, bossListPanel.transform);
+            // Then, write the info on it
+            newBoss.BossListIDset(i);
+        }
+
+    }
+    public void OnBackerRewardReturn(List<BigInteger> rewards)
+    {
+        for (int i = 0; i < rewards.Count; i++)
+        {
+            backerRewards[i] = FromWei(rewards[i]);
+
+            electionRewardTexts[i].text = "Level " + (i + 1).ToString() +
+                " Backer Rewards: " + backerRewards[i] + " STICK";
+        }
+    }
+    public void OnLevelCandidateReturnReturn(int level, List<BigInteger> candidateIDs)
+    {
+        for (int i = 0; i < candidateIDs.Count; i++)
+        {
+            BossContainer newCandidate = Instantiate(candidatePrefab, candidatePanels[level].transform);
+            newCandidate.CandidateIDset((int)candidateIDs[i], level, currentRound);
+        }
+    }
+
+    // Conversion Tools
+    private static BigInteger ToWei(double value) { return (BigInteger)(value * Math.Pow(10, 18)); }
+    private static double FromWei(BigInteger value) { return ((double)value / Math.Pow(10, 18)); }
 }

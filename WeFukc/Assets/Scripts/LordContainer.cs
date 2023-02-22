@@ -14,7 +14,9 @@ public class LordContainer : MonoBehaviour
 
     public void Button_MintLicense()
     {
-        FindObjectOfType<BlockchainManager>().Button_MintLicense(this, BigInteger.Parse(licenseAmountInput.text));
+        StartCoroutine(FindObjectOfType<BlockchainManager>().
+            MintLicenseCall(this, BigInteger.Parse(licenseAmountInput.text
+        )));
     }
 
     public void MintSuccess()
@@ -23,7 +25,9 @@ public class LordContainer : MonoBehaviour
     }
     public void Button_DAOvote(bool _isApproving)
     {
-        FindObjectOfType<BlockchainManager>().Button_LordDAOvote(this, BigInteger.Parse(proposalIDInput.text), _isApproving);
+        StartCoroutine(FindObjectOfType<BlockchainManager>().
+            LordDAOvoteCall(this, BigInteger.Parse(proposalIDInput.text), _isApproving
+        ));
     }
 
     public void VoteSuccess()

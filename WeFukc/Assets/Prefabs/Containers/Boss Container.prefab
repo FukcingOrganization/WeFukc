@@ -3133,7 +3133,7 @@ GameObject:
   - component: {fileID: 1556649342141317398}
   - component: {fileID: 1556649342141317399}
   m_Layer: 5
-  m_Name: Fukced
+  m_Name: Rekt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3157,8 +3157,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -40.83061, y: 31.40001}
-  m_SizeDelta: {x: 102.58, y: 22.6416}
+  m_AnchoredPosition: {x: -50.599773, y: 31.40001}
+  m_SizeDelta: {x: 83.0417, y: 22.6416}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1556649342141317398
 CanvasRenderer:
@@ -3188,7 +3188,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Got Fukced:'
+  m_text: 'Got Rekt:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f79675f8aee349d49a4a05f5bdd3bf30, type: 2}
   m_sharedMaterial: {fileID: 5804713818067618832, guid: f79675f8aee349d49a4a05f5bdd3bf30, type: 2}
@@ -3539,7 +3539,7 @@ GameObject:
   - component: {fileID: 1556649342527837072}
   - component: {fileID: 1556649342527837073}
   m_Layer: 5
-  m_Name: Fukced Text
+  m_Name: Rekt Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3562,7 +3562,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 129.86494, y: 0}
+  m_AnchoredPosition: {x: 120.1, y: 0}
   m_SizeDelta: {x: 156.2233, y: 22.6416}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1556649342527837072
@@ -3836,11 +3836,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 118b249517770c34d829224f307c8c35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  nameText: {fileID: 1556649341072613018}
+  idText: {fileID: 1556649340971325153}
+  rektText: {fileID: 1556649342527837073}
+  descriptionText: {fileID: 1556649341663000225}
   levelInput: {fileID: 1701530064}
   fundAmountInput: {fileID: 90993806}
   defundAmountInput: {fileID: 3733819357014240647}
   fundingPopup: {fileID: 131235983}
   defundingPopup: {fileID: 5443696447945625416}
+  image: {fileID: 0}
+  sprites: []
 --- !u!1 &1556649342893535746
 GameObject:
   m_ObjectHideFlags: 0

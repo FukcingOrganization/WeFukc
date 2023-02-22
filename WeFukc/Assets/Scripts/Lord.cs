@@ -22,13 +22,20 @@ public class Lord : MonoBehaviour
     public int numOfLicense { get; set; }
     public int collectedTaxes { get; set; }
 
-    public Lord(int id)
+    public void SetID(int id)
     {
         this.id = id;
         image.sprite = sprites[id - 1]; // lord ids starts from 1 | reduce to meet with array index
         idText.text = id.ToString();
 
         infoSet(id);
+
+        BlockchainManager chainManager = FindObjectOfType<BlockchainManager>();
+
+        // Get number of clans, license and collected taxes for this lord
+        StartCoroutine(chainManager.LordNumberOfClansCall(this));
+        StartCoroutine(chainManager.LordNumberOfLicenseCall(this));
+        StartCoroutine(chainManager.LordCollectedTaxesCall(this));
     }
 
     public void ClanNumberSet(int numOfClans)
@@ -60,7 +67,6 @@ public class Lord : MonoBehaviour
             default:
                 this.name = nameText.text = "Lord ID: " + id.ToString();
                 this.description = descriptionText.text = "We are the Stick Lords!";
-                break;
                 break;
         }
 

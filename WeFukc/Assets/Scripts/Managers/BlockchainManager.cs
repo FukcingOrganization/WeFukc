@@ -12,22 +12,6 @@ using Nethereum.RPC.HostWallet;
 using Nethereum.Hex.HexTypes;
 using Nethereum.JsonRpc.Client;
 
-using ContractDefinitions.Contracts.testToken.ContractDefinition;
-using ContractDefinitions.Contracts.testNFT.ContractDefinition;
-using ContractDefinitions.Contracts.testItem.ContractDefinition;
-/*
-    using Contracts.Contracts.Boss;
-    using Contracts.Contracts.License;
-    using Contracts.Contracts.Community;
-    using Contracts.Contracts.DAO;
-    using Contracts.Contracts.Executors;
-    using Contracts.Contracts.Items;
-    using Contracts.Contracts.Lord;
-    using Contracts.Contracts.Rent;
-    using Contracts.Contracts.Round;
-    using Contracts.Contracts.Token;
-*/
-
 public class BlockchainManager : MonoBehaviour
 {
     public static BlockchainManager instance;
@@ -111,32 +95,7 @@ public class BlockchainManager : MonoBehaviour
     [SerializeField] TMP_InputField proposalDescription;
     [SerializeField] TextMeshProUGUI tetet;
     [SerializeField] TMP_Dropdown proposalTypeInput;
-    #endregion
-
-    #region DELETE 
-    [Header("== DELETE ==")]
-    TextMeshProUGUI tokenBalanceText;
-    TextMeshProUGUI nftBalanceText;
-    TextMeshProUGUI itemBalanceText;
-
-    TextMeshProUGUI nftAllowanceText;
-    TextMeshProUGUI itemAllowanceText;
-    TextMeshProUGUI mintNFTButtonText;
-    TextMeshProUGUI mintItemButtonText;
-    
-
-    private BigInteger nftAllowance;
-    private BigInteger itemAllowance;
-
-
-    string tokenContract = "0x57400f3692Cb51b698774ca63451E5aD73490f1b";
-    string nftContract = "0x34063824bAf9863379d6C059C1D3653c2e18acDe";
-    string itemContract = "0xcfDDbf89c06DdC3cffA3e5137321249cf67784cc";
-    double mintAmount = 5.3;
-    double currentAllowance;
-    #endregion
-
-    
+    #endregion    
 
     /* Notes
         - Always give much higer (like 10x) allowance when you increase compared to when you check allowance.
@@ -210,8 +169,6 @@ public class BlockchainManager : MonoBehaviour
     public void Button_ClanTransferLeadership() { StartCoroutine(TransferLeadershipCall()); }
     public void Button_ClanDisband() { StartCoroutine(DisbandCall()); }
     public void Button_ClanUpdateInfo() { StartCoroutine(UpdateClanInfoCall()); }
-    public void Button_MintLicense(LordContainer lord, BigInteger _amount) { StartCoroutine(MintLicenseCall(lord, _amount)); }
-    public void Button_LordDAOvote(LordContainer lord, BigInteger _proposalID, bool _isApproving) { StartCoroutine(LordDAOvoteCall(lord, _proposalID, _isApproving)); }
     public void Button_ClanViewMemberReward() 
     { 
         BigInteger clanID = BigInteger.Parse(clanClaimMemberRewardClanIDInput.text);
@@ -224,20 +181,12 @@ public class BlockchainManager : MonoBehaviour
     public void Button_ClanViewInfo() { StartCoroutine(ViewClanInfoCall(int.Parse(clanIDSearchInput.text))); }
 
     // Round
-    public void Button_RoundGetBackerInfo() { StartCoroutine(GetBackerRewardCall()); }
 
     // DAO
     public void Button_DAOnewProposal() { StartCoroutine(NewProposalCall()); }
     public void Button_DAOvote(BigInteger _proposalID, bool _approve) { 
         // Check if the account has enough DAO tokens
         StartCoroutine(VoteCall(_proposalID, _approve)); 
-    }
-    public void Button_RoundFund(bool fund, BigInteger level, BigInteger bossID, BigInteger amount)
-    {
-        if (fund)
-            StartCoroutine(FundBossCall(level, bossID, amount));
-        else
-            StartCoroutine(DefundBossCall(level, bossID, amount));
     }
 
     // Item
@@ -246,32 +195,6 @@ public class BlockchainManager : MonoBehaviour
     public void Button_ItemBalanceOfBatch(List<string> accounts, List<BigInteger> ids) { StartCoroutine(BalanceOfBatchCall(accounts, ids)); }
     public void Button_ItemCheckMintAllowance() { StartCoroutine(ItemMintAllowanceCheckCall()); }
     public void Button_ItemIncreaseTokenAllowance() { StartCoroutine(ItemMintAllowanceCall()); }
-
-    #region DELETE 
-    public void UpdateBalanceButton()
-    {
-        StartCoroutine(UpdateTokenBalance());
-        StartCoroutine(UpdateNFTBalance());
-        StartCoroutine(UpdateItemBalance());
-    }
-    public void MintTokenButton() { StartCoroutine(MintToken()); }
-    public void MintNFTButton()
-    {
-        // If not enough allowance, then increase it first
-        if (!checkAllowance(nftContract)) { StartCoroutine(IncreaseAllowance(nftContract)); return; }
-
-        // If there is enough allowance, then mint
-        StartCoroutine(MintNFT());
-    }
-    public void MintItemButton()
-    {
-        // If not enough allowance, then increase it first
-        if (!checkAllowance(itemContract)) { StartCoroutine(IncreaseAllowance(itemContract)); return; }
-
-        // If there is enough allowance, then mint
-        StartCoroutine(MintItem());
-    }
-    #endregion
 
 
 
@@ -282,7 +205,7 @@ public class BlockchainManager : MonoBehaviour
      *              UPDATE Round and Clan Contract Definitions
      * 
      * 
-     * 
+     *              CHANGE ALL REFERENCES NON_BUTTON FUNCTION TO COROUTINE FUNCTIONS
      * 
      * 
      * 
@@ -389,6 +312,34 @@ public class BlockchainManager : MonoBehaviour
                 chainReader.WriteItemMintAllowance(true);
             }
             print("Allowance Of " + _selectedAccountAddress + " : " + allowance);
+        }
+    }
+    public IEnumerator BossSupplyCall()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Boss Supply Call - Boss Contract: " + contracts[0]);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.Boss.ContractDefinition.TotalSupplyFunction,
+                Contracts.Contracts.Boss.ContractDefinition.TotalSupplyOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.Boss.ContractDefinition
+                .TotalSupplyFunction()
+            { }, contracts[0]);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            var supply = dtoResult.ReturnValue1;
+
+            chainReader.OnBossSupplyReturn((int)supply);
+            
+            print("Current Boss Supply: " + supply);
         }
     }
 
@@ -799,7 +750,8 @@ public class BlockchainManager : MonoBehaviour
             var dtoResult = queryRequest.Result;
             var clanID = dtoResult.ReturnValue1;
 
-            if (clanID > 0) // If the account has a clan
+            // If the account has a clan and info not set yet
+            if (clanID > 0 && !chainReader.clanInfoSet) 
             {
                 chainReader.walletClan.id = (int)clanID;  // Save the account's clan ID
                 ViewClanInfoCall((int)clanID);
@@ -1027,8 +979,6 @@ public class BlockchainManager : MonoBehaviour
             }
         }
     }
-    // LATER: Update Name and Description
-    // LATER: Update License
 
     // Read
     public IEnumerator GetLordSupply()
@@ -1059,7 +1009,6 @@ public class BlockchainManager : MonoBehaviour
             print("Lord Supply: " + supply);
         }
     }
-    // Lord Name and Description
     public IEnumerator LordBalanceOfCall()
     {
         print("Wallet: " + _selectedAccountAddress);
@@ -1114,7 +1063,7 @@ public class BlockchainManager : MonoBehaviour
             var dtoResult = queryRequest.Result;
             var id = dtoResult.ReturnValue1;
 
-            chainReader.OnLordIDReturn(new Lord((int)id));
+            chainReader.OnLordIDReturn((int)id);
             print("Owned ID: " + (int)id);
         }
     }
@@ -1331,7 +1280,7 @@ public class BlockchainManager : MonoBehaviour
 
     //------ ROUND CONTRACT ------//
     // Write
-    private IEnumerator FundBossCall(BigInteger level, BigInteger bossID, BigInteger amount)
+    public IEnumerator FundBossCall(BigInteger level, BigInteger bossID, BigInteger amount)
     {
         print("Wallet: " + _selectedAccountAddress);
         print("Fund Boss - Round Contract: " + contracts[9]); // Round Contract
@@ -1344,7 +1293,7 @@ public class BlockchainManager : MonoBehaviour
 
         if (contractTransactionUnityRequest != null)
         {
-            var callFunction = new Contracts.Contracts.Round.ContractDefinition.FundBossFunction
+            var callFunction = new Contracts.Contracts.StickRound.ContractDefinition.FundBossFunction
             {
                 LevelNumber = level,
                 BossID = bossID,
@@ -1352,7 +1301,7 @@ public class BlockchainManager : MonoBehaviour
             };
 
             yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.Round.ContractDefinition.FundBossFunction
+                Contracts.Contracts.StickRound.ContractDefinition.FundBossFunction
             >(callFunction, contracts[9]);  // Round Contract
 
             if (contractTransactionUnityRequest.Exception == null)
@@ -1365,7 +1314,7 @@ public class BlockchainManager : MonoBehaviour
             }
         }
     }
-    private IEnumerator DefundBossCall(BigInteger level, BigInteger bossID, BigInteger amount)
+    public IEnumerator DefundBossCall(BigInteger level, BigInteger bossID, BigInteger amount)
     {
         print("Wallet: " + _selectedAccountAddress);
         print("Defund Boss - Round Contract: " + contracts[9]); // Round Contract
@@ -1378,7 +1327,7 @@ public class BlockchainManager : MonoBehaviour
 
         if (contractTransactionUnityRequest != null)
         {
-            var callFunction = new Contracts.Contracts.Round.ContractDefinition.FundBossFunction
+            var callFunction = new Contracts.Contracts.StickRound.ContractDefinition.FundBossFunction
             {
                 LevelNumber = level,
                 BossID = bossID,
@@ -1386,7 +1335,7 @@ public class BlockchainManager : MonoBehaviour
             };
 
             yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.Round.ContractDefinition.FundBossFunction
+                Contracts.Contracts.StickRound.ContractDefinition.FundBossFunction
             >(callFunction, contracts[9]);  // Round Contract
 
             if (contractTransactionUnityRequest.Exception == null)
@@ -1410,13 +1359,13 @@ public class BlockchainManager : MonoBehaviour
 
         if (contractTransactionUnityRequest != null)
         {
-            var callFunction = new Contracts.Contracts.Round.ContractDefinition.ClaimBackerRewardFunction
+            var callFunction = new Contracts.Contracts.StickRound.ContractDefinition.ClaimBackerRewardFunction
             {
                 RoundNumber = roundNumber
             };
 
             yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.Round.ContractDefinition.ClaimBackerRewardFunction
+                Contracts.Contracts.StickRound.ContractDefinition.ClaimBackerRewardFunction
             >(callFunction, contracts[9]);  // Round Contract
 
             if (contractTransactionUnityRequest.Exception == null)
@@ -1430,17 +1379,11 @@ public class BlockchainManager : MonoBehaviour
         }
     }
 
-
-    // public List<byte[]> GetProof(byte[] hashLeaf) --> hashLeaf ??
-    // 
-
     // Read
-    private IEnumerator GetBackerRewardCall()
+    public IEnumerator GetCurrentBackerRewardCall()
     {
         print("Wallet: " + _selectedAccountAddress);
         print("Get Backer Reward - Round Contract: " + contracts[9]);
-        // Parameters
-        print("Round Number: " + backerRoundInput.text);
 
         BigInteger roundNumber = BigInteger.Parse(backerRoundInput.text);
 
@@ -1449,27 +1392,189 @@ public class BlockchainManager : MonoBehaviour
         if (contractTransactionUnityRequest != null)
         {
             var queryRequest = new QueryUnityRequest<
-                Contracts.Contracts.Round.ContractDefinition.GetBackerRewardsFunction,
-                Contracts.Contracts.Round.ContractDefinition.GetBackerRewardsOutputDTO>(
+                Contracts.Contracts.StickRound.ContractDefinition.ViewCurrentBackerRewardsFunction,
+                Contracts.Contracts.StickRound.ContractDefinition.ViewCurrentBackerRewardsOutputDTO>(
                 GetUnityRpcRequestClientFactory(), _selectedAccountAddress
             );
 
-            yield return queryRequest.Query(new Contracts.Contracts.Round.ContractDefinition
-                .GetBackerRewardsFunction()
+            yield return queryRequest.Query(new Contracts.Contracts.StickRound.ContractDefinition
+                .ViewCurrentBackerRewardsFunction()
+            { }, contracts[9]);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+
+            chainReader.OnBackerRewardReturn(dtoResult.ReturnValue1);
+            print("Level 1 Backer Reward: " + dtoResult.ReturnValue1[0]);
+        }
+    }
+    public IEnumerator GetCurrentRoundNumberCall()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Get Current Round Number - Round Contract: " + contracts[9]);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.StickRound.ContractDefinition.ViewRoundNumberFunction,
+                Contracts.Contracts.StickRound.ContractDefinition.ViewRoundNumberOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.StickRound.ContractDefinition
+                .ViewRoundNumberFunction()
+            { }, contracts[9]);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            chainReader.currentRound = (int)dtoResult.ReturnValue1;
+
+            print("Current Round: " + dtoResult.ReturnValue1);
+        }
+    }
+    public IEnumerator GetLevelCandidatesCall(BigInteger roundNumber, BigInteger levelNumber)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("View Election (getting candidates) - Round Contract: " + contracts[9]);
+        // Paramters
+        print("Round number:" + roundNumber);
+        print("Level number:" + levelNumber);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.StickRound.ContractDefinition.ViewElectionFunction,
+                Contracts.Contracts.StickRound.ContractDefinition.ViewElectionOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.StickRound.ContractDefinition
+                .ViewElectionFunction()
+            { }, contracts[9]);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            chainReader.OnLevelCandidateReturnReturn((int)levelNumber, dtoResult.ReturnValue1);
+
+            print("Round " + roundNumber + ", level " + levelNumber + " results:");
+            foreach (BigInteger candidateID in dtoResult.ReturnValue1)
             {
-                RoundNumber = roundNumber
+                print("Candidate: " + candidateID);
+            }
+        }
+    }
+    public IEnumerator GetCandidateFunds(BigInteger roundNumber, BossContainer candidate)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("View Candidate Funds - Round Contract: " + contracts[9]);
+        // Paramters
+        print("Round number:" + roundNumber);
+        print("Level number:" + candidate.selectedLevel);
+        print("Candidate ID:" + candidate.id);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.StickRound.ContractDefinition.ViewCandidateFundsFunction,
+                Contracts.Contracts.StickRound.ContractDefinition.ViewCandidateFundsOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.StickRound.ContractDefinition
+                .ViewCandidateFundsFunction()
+            {
+                RoundNumber = roundNumber,
+                LevelNumber = candidate.selectedLevel,
+                CandidateID = candidate.id,
             }, contracts[9]);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
-            var res = dtoResult.ReturnValue1;
+            candidate.OnAllFundsReturn((double)dtoResult.ReturnValue1);
 
-            // ADD : Call Display the clan name function and view the clan info function
-            // GET THE REST OF THE VARS
-            // TEST:
-            print("Clan Name: ");
+            print("Round: " + roundNumber + "  level: " + candidate.selectedLevel + "  Candidate: " + candidate.id);
+            print("Fund: " + dtoResult.ReturnValue1);
         }
     }
+    public IEnumerator GetElectionUserFunds(BigInteger roundNumber, BossContainer candidate)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("View Candidate Funds - Round Contract: " + contracts[9]);
+        // Paramters
+        print("Round number:" + roundNumber);
+        print("Level number:" + candidate.selectedLevel);
+        print("Candidate ID:" + candidate.id);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.StickRound.ContractDefinition.ViewCandidateFundsFunction,
+                Contracts.Contracts.StickRound.ContractDefinition.ViewCandidateFundsOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.StickRound.ContractDefinition
+                .ViewCandidateFundsFunction()
+            {
+                RoundNumber = roundNumber,
+                LevelNumber = candidate.selectedLevel,
+                CandidateID = candidate.id,
+            }, contracts[9]);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            candidate.OnAllFundsReturn((double)dtoResult.ReturnValue1);
+
+            print("Round: " + roundNumber + "  level: " + candidate.selectedLevel + "  Candidate: " + candidate.id);
+            print("Fund: " + dtoResult.ReturnValue1);
+        }
+    }
+
+
+    //------ BOSS CONTRACT ------//
+    // Read
+    public IEnumerator GetBossRektCall(BossContainer boss)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Get Boss Rekt - Boss Contract: " + contracts[0]);
+        print("Boss ID: " + boss.id);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.Boss.ContractDefinition.NumOfRektFunction,
+                Contracts.Contracts.Boss.ContractDefinition.NumOfRektOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.Boss.ContractDefinition
+                .NumOfRektFunction()
+            {
+                ReturnValue1 = boss.id
+            }, contracts[0]);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            var numOfRekt = dtoResult.ReturnValue1;
+
+            boss.OnBossRektReturn((int)numOfRekt);
+            print("Number Of Rekt of id(" + boss.id + "): " + numOfRekt);
+
+        }
+    }
+
+    // public List<byte[]> GetProof(byte[] hashLeaf) --> hashLeaf ??
+    // 
 
 
 
@@ -1606,257 +1711,6 @@ public class BlockchainManager : MonoBehaviour
             print("Item Balance has sent to the blockchainReader!");
         }
     }
-
-
-
-
-
-    // Read Function
-    private IEnumerator UpdateTokenBalance()
-    {
-        print("Wallet: " + _selectedAccountAddress);
-        print("Contract: " + tokenContract);
-
-        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
-
-        if (contractTransactionUnityRequest != null) {
-            var queryRequest = new QueryUnityRequest<
-                ContractDefinitions.Contracts.testToken.ContractDefinition.BalanceOfFunction,
-                ContractDefinitions.Contracts.testToken.ContractDefinition.BalanceOfOutputDTOBase>(
-                GetUnityRpcRequestClientFactory(), _selectedAccountAddress);
-
-            yield return queryRequest.Query(new ContractDefinitions.Contracts.testToken.ContractDefinition
-                .BalanceOfFunction(){ Account = _selectedAccountAddress }, tokenContract
-            );
-
-            //Getting the dto response already decoded
-            var dtoResult = queryRequest.Result;
-            var balance = dtoResult.ReturnValue1;
-
-            tokenBalanceText.text = FromWei(balance).ToString(); // 2 decimals will be shown
-            print("Token Balance: " + balance);
-        }
-    }
-    private IEnumerator UpdateNFTBalance()
-    {
-        print("Wallet: " + _selectedAccountAddress);
-        print("Contract: " + nftContract);
-
-        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
-
-        if (contractTransactionUnityRequest != null)
-        {
-            var queryRequest = new QueryUnityRequest<
-                ContractDefinitions.Contracts.testNFT.ContractDefinition.BalanceOfFunction,
-                ContractDefinitions.Contracts.testNFT.ContractDefinition.BalanceOfOutputDTOBase>(
-                GetUnityRpcRequestClientFactory(), _selectedAccountAddress);
-
-            yield return queryRequest.Query(new ContractDefinitions.Contracts.testNFT.ContractDefinition
-                .BalanceOfFunction()
-            { Owner = _selectedAccountAddress }, nftContract);
-
-            //Getting the dto response already decoded
-            var dtoResult = queryRequest.Result;
-            var balance = dtoResult.ReturnValue1;
-
-            nftBalanceText.text = balance.ToString(); // 2 decimals will be shown
-            print("NFT Balance: " + balance);
-        }
-    }
-    private IEnumerator UpdateItemBalance()
-    {
-        print("Wallet: " + _selectedAccountAddress);
-        print("Contract: " + itemContract);
-
-        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
-
-        if (contractTransactionUnityRequest != null)
-        {
-            var queryRequest = new QueryUnityRequest<
-                ContractDefinitions.Contracts.testItem.ContractDefinition.BalanceOfFunction,
-                ContractDefinitions.Contracts.testItem.ContractDefinition.BalanceOfOutputDTOBase>(
-                GetUnityRpcRequestClientFactory(), _selectedAccountAddress);
-
-            yield return queryRequest.Query(new ContractDefinitions.Contracts.testItem.ContractDefinition
-                .BalanceOfFunction()
-            { Account = _selectedAccountAddress, Id = 2 }, itemContract);
-
-            //Getting the dto response already decoded
-            var dtoResult = queryRequest.Result;
-            var balance = dtoResult.ReturnValue1;
-
-            itemBalanceText.text = balance.ToString(); // 2 decimals will be shown
-            print("Item Balance: " + balance);
-        }
-    }
-    private IEnumerator ReadAllowance(string contractAddress)
-    {
-        yield return new WaitForSeconds(10);    // TEST: Checking with connect button, wait for the connection
-
-        print("Checking Allowance for: " + contractAddress);
-
-        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
-
-        if (contractTransactionUnityRequest != null)
-        {
-            var queryRequest = new QueryUnityRequest<AllowanceFunction, AllowanceOutputDTO>(
-                GetUnityRpcRequestClientFactory(), _selectedAccountAddress);
-
-            yield return queryRequest.Query(new AllowanceFunction()
-            { Owner = _selectedAccountAddress, Spender = contractAddress }, tokenContract);
-
-            //Getting the dto response already decoded
-            var dtoResult = queryRequest.Result;
-            var allowance = dtoResult.ReturnValue1;
-
-            if (contractAddress == nftContract)
-            {
-                nftAllowance = allowance;
-                nftAllowanceText.text = allowance.ToString(); // 2 decimals will be shown
-                print("NFT contract allowance: " + allowance.ToString());
-            }
-            else
-            {
-                itemAllowance = allowance;
-                itemAllowanceText.text = allowance.ToString(); // 2 decimals will be shown
-                print("Item contract allowance: " + allowance.ToString());
-            }
-        }
-    }
-
-    // Write Functions
-    private IEnumerator MintToken() {
-        print("Wallet: " + _selectedAccountAddress);
-        print("Contract: " + tokenContract);
-
-        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
-
-        if (contractTransactionUnityRequest != null) {
-
-            var mintFunction = new ContractDefinitions.Contracts.testToken.ContractDefinition.MintFunction {
-                To = _selectedAccountAddress,
-                Amount = ToWei(mintAmount)
-            };
-
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                ContractDefinitions.Contracts.testToken.ContractDefinition.MintFunction>(mintFunction, tokenContract);
-            if (contractTransactionUnityRequest.Exception == null) {
-                print(contractTransactionUnityRequest.Result);
-            }
-            else {
-                print(contractTransactionUnityRequest.Exception.Message);
-            }
-        }
-    }
-    private IEnumerator MintNFT()
-    {
-        print("Wallet: " + _selectedAccountAddress);
-        print("Contract: " + nftContract);
-
-        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
-
-        if (contractTransactionUnityRequest != null)
-        {
-            var mintFunction = new ContractDefinitions.Contracts.testNFT.ContractDefinition.MintFunction { };
-
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                ContractDefinitions.Contracts.testNFT.ContractDefinition.MintFunction>(
-                    mintFunction, nftContract);
-            if (contractTransactionUnityRequest.Exception == null)
-            {
-                print(contractTransactionUnityRequest.Result);
-            }
-            else
-            {
-                print(contractTransactionUnityRequest.Exception.Message);
-            }
-        }
-    }
-    private IEnumerator MintItem()
-    {
-        print("Wallet: " + _selectedAccountAddress);
-        print("Contract: " + itemContract);
-
-        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
-
-        if (contractTransactionUnityRequest != null)
-        {
-            var mintFunction = new MintItemFunction
-            {
-                Id = 2,
-                Amount = 1
-            };
-
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<MintItemFunction>(mintFunction, itemContract);
-            if (contractTransactionUnityRequest.Exception == null)
-            {
-                print(contractTransactionUnityRequest.Result);
-            }
-            else
-            {
-                print(contractTransactionUnityRequest.Exception.Message);
-            }
-        }
-    }
-    private IEnumerator IncreaseAllowance(string contractAddress)
-    {
-        print("Wallet: " + _selectedAccountAddress);
-        print("Increase allowance for: " + contractAddress);
-
-        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
-
-        if (contractTransactionUnityRequest != null)
-        {
-
-            var increaseAllowanceFunction = new IncreaseAllowanceFunction
-            {
-                Spender = contractAddress,
-                AddedValue = ToWei(10000000)    // increase the allowance 10m
-            };
-
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<IncreaseAllowanceFunction>(
-                increaseAllowanceFunction, tokenContract);
-            if (contractTransactionUnityRequest.Exception == null)
-            {
-                print(contractTransactionUnityRequest.Result);
-                if (contractAddress == nftContract)
-                    mintNFTButtonText.text = "Mint NFT";
-                else
-                    mintItemButtonText.text = "Mint Item";
-            }
-            else
-            {
-                print(contractTransactionUnityRequest.Exception.Message);
-            }
-        }
-    }
-
-    // Allowance Functions
-    private bool checkAllowance(string contractAddress)
-    {
-        print("Check Allowance: " + contractAddress);
-        StartCoroutine(ReadAllowance(contractAddress));
-
-        // If the allowance more than 1m token, than go ahead
-        if (contractAddress == nftContract && nftAllowance > ToWei(1000000))
-        {
-            print("Allowance TRUE for NFT Contract!");
-            return true;
-        }
-        else if (contractAddress == itemContract && itemAllowance > ToWei(1000000))
-        {
-            print("Allowance TRUE for Item Contract!");
-            return true;
-        }
-        else
-        {
-            print("Allowance FALSE !!!! Contract: " + contractAddress);
-            return false;
-        }
-    }
-
-
-
 
 
 
