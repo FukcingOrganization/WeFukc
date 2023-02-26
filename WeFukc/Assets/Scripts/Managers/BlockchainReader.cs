@@ -48,9 +48,17 @@ public class BlockchainReader : MonoBehaviour
     [SerializeField] BossContainer candidatePrefab;
     [SerializeField] GameObject[] candidatePanels;
 
+    // DAO
+    [Header("DAO")]
+    [SerializeField] ProposalContainer activeProposalPrefab;
+    [SerializeField] ProposalContainer completedProposalPrefab;
+    [SerializeField] GameObject activeProposalPanel;
+    [SerializeField] GameObject completedProposalPanel;
 
     // References
     BlockchainManager chainManager;
+
+    List<ProposalContainer> proposals;
 
     [HideInInspector]
     public Clan walletClan = new Clan();
@@ -279,13 +287,6 @@ public class BlockchainReader : MonoBehaviour
 
     // Election
 
-    /*
-     *      TO DO
-     *  - Get the candidates
-     *  - Display them
-     *  
-     */
-
     public void Button_ListBosses()
     {
         // if info already set, then skip it!
@@ -335,6 +336,51 @@ public class BlockchainReader : MonoBehaviour
             BossContainer newCandidate = Instantiate(candidatePrefab, candidatePanels[level].transform);
             newCandidate.CandidateIDset((int)candidateIDs[i], level, currentRound);
         }
+    }
+
+    // DAO
+    public void Button_GetLastProposals(int proposalAmount)
+    {
+        StartCoroutine(chainManager.GetLastProposalBasics((BigInteger)proposalAmount));
+    }
+    public void OnProposalReturn(
+        List<BigInteger> ids, 
+        List<string> descriptions, 
+        List<BigInteger> startTime, 
+        List<BigInteger> endTime, 
+        List<BigInteger> status
+    ) {
+        int rejectedCount = 0;
+
+        // create containers with basic information
+        for (int i = 0; i < ids.Count; i++)
+        {
+            // Decide which panel it belongs
+            GameObject panel = activeProposalPanel;
+            if (status[i] > 1)
+            {
+                if (rejectedCount > 10) { continue; }   // skip to add it to the proposals
+
+                panel = completedProposalPanel;
+                rejectedCount++;
+            }
+
+            // create the empty prefab
+            ProposalContainer newProp = Instantiate(activeProposalPrefab, panel.transform);
+
+            // Then, write the info on it
+            newProp.id = (int)ids[i];
+            newProp.description = descriptions[i];
+            newProp.startTime = (int)startTime[i];
+            newProp.endingTime = (int)endTime[i];
+            newProp.status = (int)status[i];
+
+            // Add it to the list
+            proposals.Add(newProp);
+        }
+
+        // Send them to the blockchain manager to request number information
+        StartCoroutine(chainManager.GetLastProposalNumbers((BigInteger)proposals.Count, proposals));
     }
 
     // Conversion Tools
