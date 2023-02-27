@@ -1400,7 +1400,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 1.7296}
-  m_SizeDelta: {x: 550, y: 158.5408}
+  m_SizeDelta: {x: 550, y: 160}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5941077332414107563
 CanvasRenderer:
@@ -1458,8 +1458,7 @@ MonoBehaviour:
   forVoteText: {fileID: 5941077331744049363}
   againstVoteText: {fileID: 49944033920661912}
   participantsText: {fileID: 5941077332830642482}
-  passedText: {fileID: 0}
-  rejectedText: {fileID: 0}
+  resultText: {fileID: 0}
 --- !u!1 &5941077332479396078
 GameObject:
   m_ObjectHideFlags: 0

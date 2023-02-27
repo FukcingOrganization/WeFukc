@@ -192,7 +192,7 @@ public class BlockchainManager : MonoBehaviour
     // Item
     public void Button_ItemMint(BigInteger id, BigInteger amount) { StartCoroutine(MintItemCall(id, amount)); }
     public void Button_ItemBurn(List<BigInteger> ids, List<BigInteger> amounts) { StartCoroutine(BurnItemsCall(ids, amounts)); }
-    public void Button_ItemBalanceOfBatch(List<string> accounts, List<BigInteger> ids) { StartCoroutine(BalanceOfBatchCall(accounts, ids)); }
+    public void Button_ItemBalanceOf(BigInteger id) { StartCoroutine(ItemBalanceOfCall(id)); }
     public void Button_ItemCheckMintAllowance() { StartCoroutine(ItemMintAllowanceCheckCall()); }
     public void Button_ItemIncreaseTokenAllowance() { StartCoroutine(ItemMintAllowanceCall()); }
 
@@ -221,7 +221,6 @@ public class BlockchainManager : MonoBehaviour
 
 
     //******    BLOCKCHAIN FUNCTIONS    ******//
-
     // General
     public IEnumerator TokenBalanceOfCall()
     {
@@ -309,6 +308,7 @@ public class BlockchainManager : MonoBehaviour
 
             if (allowance > 1000000000) // If the allowance is more than 1 billion token
             {
+                print("Allowance is given!");
                 chainReader.WriteItemMintAllowance(true);
             }
             print("Allowance Of " + _selectedAccountAddress + " : " + allowance);
@@ -411,6 +411,7 @@ public class BlockchainManager : MonoBehaviour
             {
                 print(contractTransactionUnityRequest.Exception.Message);
             }
+            
         }
     }
     private IEnumerator SetMemberCall(bool assignAsMember)
@@ -722,13 +723,13 @@ public class BlockchainManager : MonoBehaviour
             clanAvailableMemberRewardText.text = reward.ToString();
             print("Available Member Reward: " + reward);
         }
+
+        
     }
     public IEnumerator WalletClanCall()
     {
         print("Wallet: " + _selectedAccountAddress);
         print("Get Clan Of - Clan Contract: " + contracts[1]);
-        // Parameters
-        print("Wallet: " + _selectedAccountAddress);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -1762,36 +1763,35 @@ public class BlockchainManager : MonoBehaviour
     }
 
     // Read
-    private IEnumerator BalanceOfBatchCall(List<string> accounts, List<BigInteger> ids)
+    private IEnumerator ItemBalanceOfCall(BigInteger id)
     {
         print("Wallet: " + _selectedAccountAddress);
         print("Balance Of Batch - Items Contract: " + contracts[6]); // Item Contract
-
-        foreach (string account in accounts) { print("Account: " + account); }
-        foreach (BigInteger id in ids) { print("Id: " + id); }
+        print("Item ID: " + id);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
         if (contractTransactionUnityRequest != null)
         {
             var queryRequest = new QueryUnityRequest<
-                Contracts.Contracts.Items.ContractDefinition.BalanceOfBatchFunction,
-                Contracts.Contracts.Items.ContractDefinition.BalanceOfBatchOutputDTO>(
+                Contracts.Contracts.Items.ContractDefinition.BalanceOfFunction,
+                Contracts.Contracts.Items.ContractDefinition.BalanceOfOutputDTO>(
                 GetUnityRpcRequestClientFactory(), _selectedAccountAddress
             );
 
             yield return queryRequest.Query(new Contracts.Contracts.Items.ContractDefinition
-                .BalanceOfBatchFunction()
+                .BalanceOfFunction()
             {
-                Accounts = accounts,
-                Ids = ids
+                Account = _selectedAccountAddress,
+                Id = id
             }, contracts[6]);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
+            int balance = (int)dtoResult.ReturnValue1;
 
-            chainReader.WriteItemBalance(dtoResult.ReturnValue1);
-            print("Item Balance has sent to the blockchainReader!");
+            chainReader.WriteItemBalance((int)id, balance);
+            print("Item (ID: " + id + ") Balance :" + balance);
         }
     }
 

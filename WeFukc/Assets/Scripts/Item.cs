@@ -12,7 +12,7 @@ public class Item : MonoBehaviour
     public void Button_MintItem()
     {
         FindObjectOfType<BlockchainManager>().Button_ItemMint(
-            id, BigInteger.Parse(mintAmountInput.text)
+            (BigInteger)id, BigInteger.Parse(mintAmountInput.text)
         );
     }
 }

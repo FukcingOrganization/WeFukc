@@ -80,6 +80,7 @@ public class BlockchainReader : MonoBehaviour
     [HideInInspector]
     public int currentRound;
     public double[] backerRewards;
+    int[] itemBalances = new int[5];
 
     /* BlockchainReader Script:
      * 
@@ -172,9 +173,7 @@ public class BlockchainReader : MonoBehaviour
         // if info already set, then skip it!
         if (itemInfoSet) { return; }
 
-        chainManager.Button_ItemBalanceOfBatch(
-            new List<string> { walletAddress }, new List<BigInteger> { 1, 2, 3, 4, 5 }
-        );
+        chainManager.Button_ItemBalanceOf(0);
 
         itemInfoSet = true;
     }
@@ -188,12 +187,15 @@ public class BlockchainReader : MonoBehaviour
             }
         }
     }
-    public void WriteItemBalance(List<BigInteger> balances)
+    public void WriteItemBalance(int id, int balance)
     {
-        for (int i = 0; i < balances.Count; i++) 
-        { 
-            itemBalanceTexts[i].text = balances[i].ToString(); 
-        }
+        itemBalances[id] = balance;
+        itemBalanceTexts[id].text = itemBalances[id].ToString();  
+    }
+    public void AddItemBalance(int id, int amount)
+    {
+        itemBalances[id] += amount;
+        itemBalanceTexts[id].text = itemBalances[id].ToString();
     }
 
     // Get Lords

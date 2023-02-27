@@ -10,12 +10,14 @@ public class ViewPanel : MonoBehaviour
     [SerializeField] float testObjects;
 
     [SerializeField] GameObject container;
+    [SerializeField] bool active;
 
     RectTransform initialRect;
     Transform initialTransform;
 
     void Start()
     {
+        if (!active) { return; }
         for (int i = 0; i < testObjects; i++)
         {
             Instantiate(container, gameObject.transform);
