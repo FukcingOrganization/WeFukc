@@ -22,21 +22,20 @@ public class BlockchainManager : MonoBehaviour
     string _currentContractAddress = "";
     private BigInteger _currentChainId;
     private BigInteger desiredChainID = 421613; // Arbi Goerli
-    string[] contracts = new string[] {
-      "0xd5DdaF6df51220a17E2292cF4A64ae6510c5415e", // 0- Boss
-      "0xAe7F338bEc15Aa8aC310A0D2139fcdf3D7E3a447", // 1- Clan
-      "0xfBeede26a1F88745c2091a39E47fd10eFC7e8E5F", // 2- License
-      "0xdC0F3C29b0D2a615cB7b46e59D7F7271962730F9", // 3- Community
-      "0x40436Cb71F18594185ef6098631aADDB6d35Ca0B", // 4- DAO
-      "0xB52f5ff2aa6Ed6017cc7816A9E3F995e0c4A85BD", // 5- Executor
-      "0x1727bAaa06c10519762d8233301f3f1E9e59c17c", // 6- Item
-      "0x6D11053Bb0546eE4E1B856702A96a8b17341e6d0", // 7- Lord
-      "0x267dB8A829Ad924792a5926a12b32a9Def003021", // 8- Rent
-      "0x4FD38fF7367bD2a716A278C82A8D7ae580492760", // 9- Round
-      "0x0000000000000000000000000000000000000000", //
-      "0x1A573AF12D8B317Ff9A3057c569d6E3EC2fc3504", // 11- Token
-      "0x0000000000000000000000000000000000000000"  //
-    };
+
+    #region Contract Addresses
+    string bossContractAddress = "0xd5DdaF6df51220a17E2292cF4A64ae6510c5415e";
+    string clanContractAddress = "0xAe7F338bEc15Aa8aC310A0D2139fcdf3D7E3a447";
+    string licenseContractAddress = "0xfBeede26a1F88745c2091a39E47fd10eFC7e8E5F";
+    string communityContractAddress = "0xdC0F3C29b0D2a615cB7b46e59D7F7271962730F9";
+    string DAOContractAddress = "0x40436Cb71F18594185ef6098631aADDB6d35Ca0B";
+    string executorContractAddress = "0xB52f5ff2aa6Ed6017cc7816A9E3F995e0c4A85BD";
+    string itemContractAddress = "0x1727bAaa06c10519762d8233301f3f1E9e59c17c";
+    string lordContractAddress = "0x6D11053Bb0546eE4E1B856702A96a8b17341e6d0";
+    string rentContractAddress = "0x267dB8A829Ad924792a5926a12b32a9Def003021";
+    string roundContractAddress = "0x4FD38fF7367bD2a716A278C82A8D7ae580492760";
+    string tokenContractAddress = "0x1A573AF12D8B317Ff9A3057c569d6E3EC2fc3504";
+    #endregion
 
     // --- References --- //
     LevelManager levelManager;
@@ -200,23 +199,8 @@ public class BlockchainManager : MonoBehaviour
 
     /*
      * 
-     * 
-     * 
-     *              UPDATE Round and Clan Contract Definitions
-     * 
-     * 
      *              CHANGE ALL REFERENCES NON_BUTTON FUNCTION TO COROUTINE FUNCTIONS
-     * 
-     * 
-     * 
-     * 
-     *              CONVERT ALL TOKEN RELATED VALUES TO WEI !!!!
-     * 
-     * 
-     * 
-     * 
-     * 
-     * 
+     *              
      * */
 
 
@@ -225,7 +209,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator TokenBalanceOfCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Balance Of - Token Contract: " + contracts[11]);
+        print("Balance Of - Token Contract: " + tokenContractAddress);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -241,7 +225,7 @@ public class BlockchainManager : MonoBehaviour
                 .BalanceOfFunction()
             {
                 Account = _selectedAccountAddress
-            }, contracts[11]);
+            }, tokenContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -254,7 +238,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator DAOBalanceOfCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Balance Of - DAO Contract: " + contracts[4]);
+        print("Balance Of - DAO Contract: " + DAOContractAddress);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -270,7 +254,7 @@ public class BlockchainManager : MonoBehaviour
                 .BalanceOfFunction()
             {
                 Account = _selectedAccountAddress
-            }, contracts[4]);
+            }, DAOContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -283,7 +267,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator ItemMintAllowanceCheckCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Item Contract Allowance - Token Contract: " + contracts[11]);
+        print("Item Contract Allowance - Token Contract: " + tokenContractAddress);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -299,8 +283,8 @@ public class BlockchainManager : MonoBehaviour
                 .AllowanceFunction()
             {
                 Owner = _selectedAccountAddress,
-                Spender = contracts[6]
-            }, contracts[11]);
+                Spender = itemContractAddress
+            }, tokenContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -317,7 +301,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator BossSupplyCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Boss Supply Call - Boss Contract: " + contracts[0]);
+        print("Boss Supply Call - Boss Contract: " + bossContractAddress);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -331,7 +315,7 @@ public class BlockchainManager : MonoBehaviour
 
             yield return queryRequest.Query(new Contracts.Contracts.Boss.ContractDefinition
                 .TotalSupplyFunction()
-            { }, contracts[0]);
+            { }, bossContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -348,7 +332,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator CreateClanCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Creating Clan - Clan Contract: " + contracts[1]); // Clan Contract
+        print("Creating Clan - Clan Contract: " + clanContractAddress);
         // Paramaters
         print("Lord ID: " + BigInteger.Parse(createClanLordIDInput.text));
         print("Clan Name: " + createClanNameInput.text);
@@ -369,9 +353,8 @@ public class BlockchainManager : MonoBehaviour
                 ClanMotto = createClanMottoInput.text
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickClan.ContractDefinition.CreateClanFunction
-            >(callFunction, contracts[1]);  // Clan Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, clanContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -386,7 +369,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator DeclareClanCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Declaring Clan - Clan Contract: " + contracts[1]); // Clan Contract
+        print("Declaring Clan - Clan Contract: " + clanContractAddress);
         // Paramaters
         print("Clan ID: " + BigInteger.Parse(clanIDSearchInput.text));
 
@@ -399,9 +382,8 @@ public class BlockchainManager : MonoBehaviour
                 ClanID = BigInteger.Parse(clanIDSearchInput.text)
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickClan.ContractDefinition.DeclareClanFunction
-            >(callFunction, contracts[1]);  // Clan Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, clanContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -417,7 +399,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator SetMemberCall(bool assignAsMember)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Set Member - Clan Contract: " + contracts[1]); // Clan Contract
+        print("Set Member - Clan Contract: " + clanContractAddress);
         // Parameters
         print("Clan ID: " + chainReader.displayClan.id);
         print("Member Address: " + clanSetMemberAddressInput.text);
@@ -434,9 +416,8 @@ public class BlockchainManager : MonoBehaviour
                 SetAsMember = assignAsMember
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickClan.ContractDefinition.SetMemberFunction
-            >(callFunction, contracts[1]);  // Clan Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, clanContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -451,7 +432,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator SetExecutorCall(bool assignAsExecutor)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Set Executor - Clan Contract: " + contracts[1]); // Clan Contract
+        print("Set Executor - Clan Contract: " + clanContractAddress);
         // Parameters
         print("Clan ID: " + chainReader.displayClan.id);
         print("Executor Address: " + clanSetExecutorAddressInput.text);
@@ -468,9 +449,8 @@ public class BlockchainManager : MonoBehaviour
                 SetAsExecutor = assignAsExecutor
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickClan.ContractDefinition.SetClanExecutorFunction
-            >(callFunction, contracts[1]);  // Clan Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, clanContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -485,7 +465,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator SetModCall(bool assignAsMod)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Set Mod - Clan Contract: " + contracts[1]); // Clan Contract
+        print("Set Mod - Clan Contract: " + clanContractAddress);
         // Parameters
         print("Clan ID: " + chainReader.displayClan.id);
         print("Mod Address: " + clanSetModAddressInput.text);
@@ -502,9 +482,8 @@ public class BlockchainManager : MonoBehaviour
                 SetAsMod = assignAsMod
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickClan.ContractDefinition.SetClanModFunction
-            >(callFunction, contracts[1]);  // Clan Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, clanContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -519,7 +498,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator GiveMemberPointCall(BigInteger point, bool isDecreasing)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Give Member Point - Clan Contract: " + contracts[1]); // Clan Contract
+        print("Give Member Point - Clan Contract: " + clanContractAddress);
 
         // Parameters
         print("Clan ID: " + chainReader.displayClan.id);
@@ -539,9 +518,8 @@ public class BlockchainManager : MonoBehaviour
                 IsDecreasing = isDecreasing
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickClan.ContractDefinition.GiveMemberPointFunction
-            >(callFunction, contracts[1]);  // Clan Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, clanContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -556,7 +534,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator ClaimMemberRewardCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Claim Member Reward - Clan Contract: " + contracts[1]); // Clan Contract
+        print("Claim Member Reward - Clan Contract: " + clanContractAddress);
 
         // Parameters
         print("Clan ID: " + BigInteger.Parse(clanClaimMemberRewardClanIDInput.text));
@@ -572,9 +550,8 @@ public class BlockchainManager : MonoBehaviour
                 RoundNumber = BigInteger.Parse(clanClaimMemberRewardRoundInput.text)
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickClan.ContractDefinition.MemberRewardClaimFunction
-            >(callFunction, contracts[1]);  // Clan Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, clanContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -589,7 +566,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator UpdateClanInfoCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Update Clan Info - Clan Contract: " + contracts[1]); // Clan Contract
+        print("Update Clan Info - Clan Contract: " + clanContractAddress);
 
         // Parameters
         print("Clan ID: " + BigInteger.Parse(clanClaimMemberRewardClanIDInput.text));
@@ -611,9 +588,8 @@ public class BlockchainManager : MonoBehaviour
                 NewLogoURI = clanUpdateInfoLogoInput.text,
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickClan.ContractDefinition.UpdateClanInfoFunction
-            >(callFunction, contracts[1]);  // Clan Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, clanContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -628,7 +604,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator TransferLeadershipCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Transfer Leadership - Clan Contract: " + contracts[1]); // Clan Contract
+        print("Transfer Leadership - Clan Contract: " + clanContractAddress);
 
         // Parameters
         print("Clan ID: " + chainReader.displayClan.id);
@@ -644,9 +620,8 @@ public class BlockchainManager : MonoBehaviour
                 NewLeader = clanTransferLeadershipAddressInput.text
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickClan.ContractDefinition.TransferLeadershipFunction
-            >(callFunction, contracts[1]);  // Clan Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, clanContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -661,7 +636,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator DisbandCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Disband - Clan Contract: " + contracts[1]); // Clan Contract
+        print("Disband - Clan Contract: " + clanContractAddress);
 
         // Parameters
         print("Clan ID: " + chainReader.displayClan.id);
@@ -675,9 +650,8 @@ public class BlockchainManager : MonoBehaviour
                 ClanID = (BigInteger)chainReader.displayClan.id // Get the displayed clan ID
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickClan.ContractDefinition.DisbandClanFunction
-            >(callFunction, contracts[1]);  // Clan Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, clanContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -694,7 +668,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator ViewMemberRewardCall(BigInteger clanID, BigInteger roundNumber)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("View Member Reward - Clan Contract: " + contracts[1]);
+        print("View Member Reward - Clan Contract: " + clanContractAddress);
         // Parameters
         print("Clan ID: " + clanID);
         print("Round Number: " + roundNumber);
@@ -714,7 +688,7 @@ public class BlockchainManager : MonoBehaviour
             {
                 ClanID = clanID,
                 RoundNumber = roundNumber
-            }, contracts[1]);
+            }, clanContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -729,7 +703,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator WalletClanCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Get Clan Of - Clan Contract: " + contracts[1]);
+        print("Get Clan Of - Clan Contract: " + clanContractAddress);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -745,7 +719,7 @@ public class BlockchainManager : MonoBehaviour
                 .GetClanOfFunction()
             {
                 Address = _selectedAccountAddress
-            }, contracts[1]);
+            }, clanContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -763,7 +737,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator ViewClanInfoCall(int clanID)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("View Clan Info - Clan Contract: " + contracts[1]);
+        print("View Clan Info - Clan Contract: " + clanContractAddress);
         // Parameters
         print("Clan ID: " + clanID);
 
@@ -783,7 +757,7 @@ public class BlockchainManager : MonoBehaviour
                 .ViewClanInfoFunction()
             {
                 ClanID = clanID
-            }, contracts[1]);
+            }, clanContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -813,7 +787,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator GetClanPointsCall(int clanID)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Get Clan Points - Clan Contract: " + contracts[1]);
+        print("Get Clan Points - Clan Contract: " + clanContractAddress);
         // Parameters
         print("Clan ID: " + clanID);
 
@@ -831,7 +805,7 @@ public class BlockchainManager : MonoBehaviour
                 .GetClanPointsFunction()
             {
                 ClanID = clanID
-            }, contracts[1]);
+            }, clanContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -890,7 +864,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator LordMintCall(BigInteger _amountToSend)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Lord Mint - Lord Contract: " + contracts[7]); // Lord Contract
+        print("Lord Mint - Lord Contract: " + lordContractAddress);
         print("Given BigInteger: " + _amountToSend.ToString());
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -902,9 +876,8 @@ public class BlockchainManager : MonoBehaviour
                 AmountToSend = _amountToSend
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickLord.ContractDefinition.LordMintFunction
-            >(callFunction, contracts[7]);  // Lord Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, lordContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -919,7 +892,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator MintLicenseCall(LordContainer lord, BigInteger _amount)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Mint License - Lord Contract: " + contracts[7]); // Lord Contract
+        print("Mint License - Lord Contract: " + lordContractAddress);
         print("Amount: " + _amount);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -931,9 +904,8 @@ public class BlockchainManager : MonoBehaviour
                 Amount = _amount
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickLord.ContractDefinition.MintClanLicenseFunction
-            >(callFunction, contracts[7]);  // Lord Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, lordContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -949,7 +921,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator LordDAOvoteCall(LordContainer lord, BigInteger _proposalID, bool _isApproving)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("DAO Vote - Lord Contract: " + contracts[7]); // Lord Contract
+        print("DAO Vote - Lord Contract: " + lordContractAddress);
         print("Lord ID: " + lord.lordID);
         print("Proposal ID: " + _proposalID);
         print("is Approving?: " + _isApproving);
@@ -965,9 +937,8 @@ public class BlockchainManager : MonoBehaviour
                 IsApproving = _isApproving
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickLord.ContractDefinition.DAOvoteFunction
-            >(callFunction, contracts[7]);  // Lord Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, lordContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -985,7 +956,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator GetLordSupply()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Lord Contract: " + contracts[7]);
+        print("Lord Contract: " + lordContractAddress);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -999,7 +970,7 @@ public class BlockchainManager : MonoBehaviour
 
             yield return queryRequest.Query(new Contracts.Contracts.StickLord.ContractDefinition
                 .TotalSupplyFunction()
-            {  }, contracts[7]);
+            {  }, lordContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1013,7 +984,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator LordBalanceOfCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Balance Of - Lord Contract: " + contracts[7]);
+        print("Balance Of - Lord Contract: " + lordContractAddress);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -1027,7 +998,7 @@ public class BlockchainManager : MonoBehaviour
 
             yield return queryRequest.Query(new Contracts.Contracts.StickLord.ContractDefinition
                 .BalanceOfFunction()
-            { }, contracts[7]);
+            { }, lordContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1040,7 +1011,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator LordIDCall(BigInteger index)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("ID call - Lord Contract: " + contracts[7]);
+        print("ID call - Lord Contract: " + lordContractAddress);
         print("Index: " + index);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -1058,7 +1029,7 @@ public class BlockchainManager : MonoBehaviour
             {
                 Owner = _selectedAccountAddress,
                 Index = index
-            }, contracts[7]);
+            }, lordContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1071,7 +1042,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator LordNumberOfClansCall(Lord lord)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Number Of Clans - Lord Contract: " + contracts[7]);
+        print("Number Of Clans - Lord Contract: " + lordContractAddress);
         print("Lord ID: " + lord.id);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -1088,7 +1059,7 @@ public class BlockchainManager : MonoBehaviour
                 .ViewNumberOfClansFunction()
             {
                 LordID = lord.id
-            }, contracts[7]);
+            }, lordContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1101,7 +1072,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator LordNumberOfLicenseCall(Lord lord)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Number Of License - License Contract: " + contracts[2]);
+        print("Number Of License - License Contract: " + licenseContractAddress);
         print("Lord ID: " + lord.id);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -1118,7 +1089,7 @@ public class BlockchainManager : MonoBehaviour
                 .NumOfActiveLicenseFunction()
             {
                 ReturnValue1 = lord.id
-            }, contracts[2]);
+            }, licenseContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1131,7 +1102,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator LordCollectedTaxesCall(Lord lord)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Collected Taxes - Clan Contract: " + contracts[1]);
+        print("Collected Taxes - Clan Contract: " + clanContractAddress);
         print("Lord ID: " + lord.id);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -1148,7 +1119,7 @@ public class BlockchainManager : MonoBehaviour
                 .CollectedTaxesFunction()
             {
                 ReturnValue1 = lord.id
-            }, contracts[1]);
+            }, clanContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1166,7 +1137,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator NewProposalCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("New Proposal - DAO Contract: " + contracts[4]); // DAO Contract
+        print("New Proposal - DAO Contract: " + DAOContractAddress);
 
         string selectedText = proposalTypeInput.options[proposalTypeInput.value].text;
         print("Selected: " + selectedText);
@@ -1201,9 +1172,8 @@ public class BlockchainManager : MonoBehaviour
                 ProposalType = type
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickDAO.ContractDefinition.NewProposalFunction
-            >(callFunction, contracts[4]);  // DAO Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, DAOContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -1218,7 +1188,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator VoteCall(BigInteger _proposalID, bool _approve)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Vote - DAO Contract: " + contracts[4]); // DAO Contract
+        print("Vote - DAO Contract: " + DAOContractAddress);
         print("Proposal ID: " + _proposalID);
         print("Approve?: " + _approve);
 
@@ -1232,9 +1202,8 @@ public class BlockchainManager : MonoBehaviour
                 IsApproving = _approve
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickDAO.ContractDefinition.VoteFunction
-            >(callFunction, contracts[4]);  // DAO Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, DAOContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -1252,7 +1221,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator GetDAOBalanceCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Balance Of - DAO Contract: " + contracts[4]);
+        print("Balance Of - DAO Contract: " + DAOContractAddress);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -1268,7 +1237,7 @@ public class BlockchainManager : MonoBehaviour
                 .BalanceOfFunction()
             {
                 Account = _selectedAccountAddress
-            }, contracts[4]);
+            }, DAOContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1279,7 +1248,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator GetLastProposalBasics(BigInteger proposalAmount)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("View Last Proposal Basics - DAO Contract: " + contracts[4]);
+        print("View Last Proposal Basics - DAO Contract: " + DAOContractAddress);
         print("Proposal Amount: " + proposalAmount);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -1296,7 +1265,7 @@ public class BlockchainManager : MonoBehaviour
                 .ViewLastProposalsBasicsFunction()
             {
                 ProposalAmount = proposalAmount
-            }, contracts[4]);
+            }, DAOContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1321,7 +1290,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator GetLastProposalNumbers(BigInteger proposalAmount, List<ProposalContainer> props)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("View Last Proposal Numbers - DAO Contract: " + contracts[4]);
+        print("View Last Proposal Numbers - DAO Contract: " + DAOContractAddress);
         print("Proposal Amount: " + proposalAmount);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -1338,7 +1307,7 @@ public class BlockchainManager : MonoBehaviour
                 .ViewLastProposalsNumbersFunction()
             {
                 ProposalAmount = proposalAmount
-            }, contracts[4]);
+            }, DAOContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1367,7 +1336,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator FundBossCall(BigInteger level, BigInteger bossID, BigInteger amount)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Fund Boss - Round Contract: " + contracts[9]); // Round Contract
+        print("Fund Boss - Round Contract: " + roundContractAddress);
 
         print("Level: " + level);
         print("Boss ID: " + bossID);
@@ -1384,9 +1353,8 @@ public class BlockchainManager : MonoBehaviour
                 FundAmount = ToWei((double)amount)
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickRound.ContractDefinition.FundBossFunction
-            >(callFunction, contracts[9]);  // Round Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, roundContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -1401,7 +1369,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator DefundBossCall(BigInteger level, BigInteger bossID, BigInteger amount)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Defund Boss - Round Contract: " + contracts[9]); // Round Contract
+        print("Defund Boss - Round Contract: " + roundContractAddress);
 
         print("Level: " + level);
         print("Boss ID: " + bossID);
@@ -1418,9 +1386,8 @@ public class BlockchainManager : MonoBehaviour
                 FundAmount = ToWei((double)amount)
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickRound.ContractDefinition.FundBossFunction
-            >(callFunction, contracts[9]);  // Round Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, roundContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -1435,7 +1402,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator ClaimBackerRewardCall(BigInteger roundNumber)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Claim Backer Reward- Round Contract: " + contracts[9]); // Round Contract
+        print("Claim Backer Reward- Round Contract: " + roundContractAddress);
 
         print("Round: " + roundNumber);
 
@@ -1448,9 +1415,8 @@ public class BlockchainManager : MonoBehaviour
                 RoundNumber = roundNumber
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.StickRound.ContractDefinition.ClaimBackerRewardFunction
-            >(callFunction, contracts[9]);  // Round Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, roundContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -1467,7 +1433,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator GetCurrentBackerRewardCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Get Backer Reward - Round Contract: " + contracts[9]);
+        print("Get Backer Reward - Round Contract: " + roundContractAddress);
 
         BigInteger roundNumber = BigInteger.Parse(backerRoundInput.text);
 
@@ -1483,7 +1449,7 @@ public class BlockchainManager : MonoBehaviour
 
             yield return queryRequest.Query(new Contracts.Contracts.StickRound.ContractDefinition
                 .ViewCurrentBackerRewardsFunction()
-            { }, contracts[9]);
+            { }, roundContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1495,7 +1461,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator GetCurrentRoundNumberCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Get Current Round Number - Round Contract: " + contracts[9]);
+        print("Get Current Round Number - Round Contract: " + roundContractAddress);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -1509,7 +1475,7 @@ public class BlockchainManager : MonoBehaviour
 
             yield return queryRequest.Query(new Contracts.Contracts.StickRound.ContractDefinition
                 .ViewRoundNumberFunction()
-            { }, contracts[9]);
+            { }, roundContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1521,7 +1487,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator GetLevelCandidatesCall(BigInteger roundNumber, BigInteger levelNumber)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("View Election (getting candidates) - Round Contract: " + contracts[9]);
+        print("View Election (getting candidates) - Round Contract: " + roundContractAddress);
         // Paramters
         print("Round number:" + roundNumber);
         print("Level number:" + levelNumber);
@@ -1538,7 +1504,7 @@ public class BlockchainManager : MonoBehaviour
 
             yield return queryRequest.Query(new Contracts.Contracts.StickRound.ContractDefinition
                 .ViewElectionFunction()
-            { }, contracts[9]);
+            { }, roundContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1554,7 +1520,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator GetCandidateFunds(BigInteger roundNumber, BossContainer candidate)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("View Candidate Funds - Round Contract: " + contracts[9]);
+        print("View Candidate Funds - Round Contract: " + roundContractAddress);
         // Paramters
         print("Round number:" + roundNumber);
         print("Level number:" + candidate.selectedLevel);
@@ -1576,7 +1542,7 @@ public class BlockchainManager : MonoBehaviour
                 RoundNumber = roundNumber,
                 LevelNumber = candidate.selectedLevel,
                 CandidateID = candidate.id,
-            }, contracts[9]);
+            }, roundContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1589,7 +1555,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator GetElectionUserFunds(BigInteger roundNumber, BossContainer candidate)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("View Candidate Funds - Round Contract: " + contracts[9]);
+        print("View Candidate Funds - Round Contract: " + roundContractAddress);
         // Paramters
         print("Round number:" + roundNumber);
         print("Level number:" + candidate.selectedLevel);
@@ -1611,7 +1577,7 @@ public class BlockchainManager : MonoBehaviour
                 RoundNumber = roundNumber,
                 LevelNumber = candidate.selectedLevel,
                 CandidateID = candidate.id,
-            }, contracts[9]);
+            }, roundContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1628,7 +1594,7 @@ public class BlockchainManager : MonoBehaviour
     public IEnumerator GetBossRektCall(BossContainer boss)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Get Boss Rekt - Boss Contract: " + contracts[0]);
+        print("Get Boss Rekt - Boss Contract: " + bossContractAddress);
         print("Boss ID: " + boss.id);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -1645,7 +1611,7 @@ public class BlockchainManager : MonoBehaviour
                 .NumOfRektFunction()
             {
                 ReturnValue1 = boss.id
-            }, contracts[0]);
+            }, bossContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1667,7 +1633,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator MintItemCall(BigInteger id, BigInteger amount)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Mint - Items Contract: " + contracts[6]); // Item Contract
+        print("Mint - Items Contract: " + itemContractAddress);
 
         print("id: " + id);
         print("Amount: " + amount);
@@ -1683,9 +1649,8 @@ public class BlockchainManager : MonoBehaviour
                 Data = new byte[0]
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.Items.ContractDefinition.MintFunction
-            >(callFunction, contracts[6]);  // Item Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, itemContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -1700,7 +1665,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator BurnItemsCall(List<BigInteger> ids, List<BigInteger> amounts)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Mint - Items Contract: " + contracts[6]); // Item Contract
+        print("Mint - Items Contract: " + itemContractAddress);
 
         print("id: " + ids);
         print("Amount: " + amounts);
@@ -1716,9 +1681,8 @@ public class BlockchainManager : MonoBehaviour
                 Values = amounts
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.Items.ContractDefinition.BurnBatchFunction
-            >(callFunction, contracts[6]);  // Item Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, itemContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -1733,8 +1697,8 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator ItemMintAllowanceCall()
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Giving Token Allowance to Item Cont - Token Contract: " + contracts[11]); // Token Contract
-        print("Item Contract: " + contracts[6]); // Item Contract
+        print("Giving Token Allowance to Item Cont - Token Contract: " + tokenContractAddress);
+        print("Item Contract: " + itemContractAddress);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -1742,13 +1706,12 @@ public class BlockchainManager : MonoBehaviour
         {
             var callFunction = new Contracts.Contracts.Token.ContractDefinition.IncreaseAllowanceFunction
             {
-                Spender = contracts[6], // item contract
+                Spender = itemContractAddress,
                 AddedValue = ToWei(1000000000)  // 1 billion allowance                
             };
 
-            yield return contractTransactionUnityRequest.SignAndSendTransaction<
-                Contracts.Contracts.Token.ContractDefinition.IncreaseAllowanceFunction
-            >(callFunction, contracts[11]);  // Item Contract
+            yield return contractTransactionUnityRequest.
+                SignAndSendTransaction(callFunction, tokenContractAddress);
 
             if (contractTransactionUnityRequest.Exception == null)
             {
@@ -1766,7 +1729,7 @@ public class BlockchainManager : MonoBehaviour
     private IEnumerator ItemBalanceOfCall(BigInteger id)
     {
         print("Wallet: " + _selectedAccountAddress);
-        print("Balance Of Batch - Items Contract: " + contracts[6]); // Item Contract
+        print("Balance Of Batch - Items Contract: " + itemContractAddress);
         print("Item ID: " + id);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -1784,7 +1747,7 @@ public class BlockchainManager : MonoBehaviour
             {
                 Account = _selectedAccountAddress,
                 Id = id
-            }, contracts[6]);
+            }, itemContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
