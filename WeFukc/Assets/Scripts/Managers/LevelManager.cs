@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class LevelManager : MonoBehaviour
 {
+    public GameObject messageWindow;
+
     [Header("Level")]
     [SerializeField] private bool fukcingLevel = false;
     [SerializeField] private TextMeshProUGUI flevel_playerName;

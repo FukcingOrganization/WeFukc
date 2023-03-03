@@ -12538,7 +12538,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Clan Name
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f79675f8aee349d49a4a05f5bdd3bf30, type: 2}
   m_sharedMaterial: {fileID: 5804713818067618832, guid: f79675f8aee349d49a4a05f5bdd3bf30, type: 2}
@@ -52654,6 +52654,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249479931}
   m_CullTransparentMesh: 1
+--- !u!224 &1251011754 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 1251011754, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
+  m_PrefabInstance: {fileID: 1682062488}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1254630637
 GameObject:
   m_ObjectHideFlags: 0
@@ -66694,6 +66699,16 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1551754305}
   m_CullTransparentMesh: 1
+--- !u!1 &1552078932 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1552078932, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
+  m_PrefabInstance: {fileID: 1682062488}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &1552078933 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 1552078933, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
+  m_PrefabInstance: {fileID: 1682062488}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1553641198
 GameObject:
   m_ObjectHideFlags: 0
@@ -72386,13 +72401,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1552078932, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1552078934, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
+      propertyPath: rectTransform
+      value: 
+      objectReference: {fileID: 1552078933}
+    - target: {fileID: 1552078934, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
+      propertyPath: textRectTransform
+      value: 
+      objectReference: {fileID: 1251011754}
     - target: {fileID: 4663883495041556698, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
       propertyPath: m_Name
       value: Level Manager
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556698, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4663883495041556700, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
       propertyPath: m_RootOrder
@@ -72439,10 +72462,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: mainMenu
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
       propertyPath: menuButtons
       value: 
       objectReference: {fileID: 1385195579}
@@ -72451,37 +72470,9 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 729456944}
     - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: menu_menuCanvas
+      propertyPath: messageWindow
       value: 
-      objectReference: {fileID: 1037553066}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: menu_playerName
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: menu_levelCanvas
-      value: 
-      objectReference: {fileID: 1353786683}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: levels.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: menu_optionsCanvas
-      value: 
-      objectReference: {fileID: 24159571}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: daoAnims.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: menu_controlsCanvas
-      value: 
-      objectReference: {fileID: 774370344}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: daoCanvas.Array.size
-      value: 2
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1552078932}
     - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
       propertyPath: levels.Array.data[0]
       value: 
@@ -72495,18 +72486,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 854826293}
     - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: menu_playerNameInput
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: menu_welcomePlayerUI
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: menuCanvas.Array.size
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
       propertyPath: daoAnims.Array.data[0]
       value: 
       objectReference: {fileID: 1463080123}
@@ -72515,14 +72494,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 565959885}
     - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: menu_playerNameInputUI
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: addressTexts.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
       propertyPath: daoCanvas.Array.data[0]
       value: 
       objectReference: {fileID: 1117440631}
@@ -72530,14 +72501,6 @@ PrefabInstance:
       propertyPath: daoCanvas.Array.data[1]
       value: 
       objectReference: {fileID: 339379971}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: profileAnims.Array.size
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: electionAnims.Array.size
-      value: 14
-      objectReference: {fileID: 0}
     - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
       propertyPath: menuCanvas.Array.data[0]
       value: 
@@ -72566,26 +72529,6 @@ PrefabInstance:
       propertyPath: menuCanvas.Array.data[6]
       value: 
       objectReference: {fileID: 774370344}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: profileCanvas.Array.size
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: addressTexts.Array.data[0]
-      value: 
-      objectReference: {fileID: 1544400839}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: addressTexts.Array.data[1]
-      value: 
-      objectReference: {fileID: 269838030}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: addressTexts.Array.data[2]
-      value: 
-      objectReference: {fileID: 1676042826}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: electionsCanvas.Array.size
-      value: 14
-      objectReference: {fileID: 0}
     - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
       propertyPath: profileAnims.Array.data[0]
       value: 
@@ -72671,18 +72614,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1568555529}
     - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: electionAnims.Array.data[11]
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: electionAnims.Array.data[12]
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: electionAnims.Array.data[13]
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
       propertyPath: electionsCanvas.Array.data[0]
       value: 
       objectReference: {fileID: 1497841426}
@@ -72726,18 +72657,6 @@ PrefabInstance:
       propertyPath: electionsCanvas.Array.data[10]
       value: 
       objectReference: {fileID: 693668032}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: electionsCanvas.Array.data[11]
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: electionsCanvas.Array.data[12]
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4663883495041556701, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
-      propertyPath: electionsCanvas.Array.data[13]
-      value: 
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ff775a7c18fd6434c8790ba964ecc1bd, type: 3}
 --- !u!1 &1683017282
@@ -76081,7 +76000,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Clan Name
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f79675f8aee349d49a4a05f5bdd3bf30, type: 2}
   m_sharedMaterial: {fileID: 5804713818067618832, guid: f79675f8aee349d49a4a05f5bdd3bf30, type: 2}
@@ -84699,7 +84618,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Clan Name
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f79675f8aee349d49a4a05f5bdd3bf30, type: 2}
   m_sharedMaterial: {fileID: 5804713818067618832, guid: f79675f8aee349d49a4a05f5bdd3bf30, type: 2}

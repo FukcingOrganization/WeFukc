@@ -41,6 +41,11 @@ public class BlockchainManager : MonoBehaviour
     LevelManager levelManager;
     BlockchainReader chainReader;
 
+    // General Variables
+    float checkDelay_1 = 15f;
+    float checkDelay_2 = 25f;
+    float checkDelay_3 = 40f;
+
 
     #region LORD
     [Header("== Lord Objects ==")]
@@ -290,7 +295,7 @@ public class BlockchainManager : MonoBehaviour
             var dtoResult = queryRequest.Result;
             var allowance = FromWei(dtoResult.ReturnValue1);
 
-            if (allowance > 1000000000) // If the allowance is more than 1 billion token
+            if (allowance >= 1000000000) // If the allowance is more than 1 billion token
             {
                 print("Allowance is given!");
                 chainReader.WriteItemMintAllowance(true);
@@ -1661,6 +1666,22 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(ItemBalanceOfCall(id));
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(ItemBalanceOfCall(id));
     }
     private IEnumerator BurnItemsCall(List<BigInteger> ids, List<BigInteger> amounts)
     {

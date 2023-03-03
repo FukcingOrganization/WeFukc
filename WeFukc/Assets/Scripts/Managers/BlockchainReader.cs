@@ -57,6 +57,7 @@ public class BlockchainReader : MonoBehaviour
 
     // References
     BlockchainManager chainManager;
+    TextFitter messageWindow;
 
     List<ProposalContainer> proposals;
 
@@ -124,11 +125,33 @@ public class BlockchainReader : MonoBehaviour
 
     void Start()
     {
-        chainManager = GetComponent<BlockchainManager>();
+        chainManager = FindObjectOfType<BlockchainManager>();
+        messageWindow = FindObjectOfType<LevelManager>().messageWindow.GetComponent<TextFitter>();
+
+        StartCoroutine(DisplayWindowText());
+
+        print("Name:" + messageWindow.name);
     }
     void Update()
     {
         if (chainManager == null) { chainManager = FindObjectOfType<BlockchainManager>(); }
+        if (messageWindow == null) { messageWindow = FindObjectOfType<LevelManager>().messageWindow.GetComponent<TextFitter>();
+            print("Name:" + messageWindow.name);
+        }
+    }
+
+    private IEnumerator DisplayWindowText()
+    {
+        print("Waiting 5 sec to display green message");
+        yield return new WaitForSeconds(5f);
+
+        print("Displaying a good message");
+        messageWindow.DisplayMessage("All is well", true, 3f);
+
+        print("Waiting 5 sec to display red message");
+        yield return new WaitForSeconds(5f);
+
+        messageWindow.DisplayMessage("Things gonna get dirty!", false, 6f);
     }
 
     // Basic Info Display
