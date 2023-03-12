@@ -16,6 +16,8 @@ public class ProposalContainer : MonoBehaviour
     public int againstVotes { get; set; }
     public int participants { get; set; }
 
+    // Total votes ??
+
     [SerializeField] TextMeshProUGUI idText;
     [SerializeField] TextMeshProUGUI descriptionText;
     [SerializeField] TextMeshProUGUI endingTimeText;
@@ -23,6 +25,17 @@ public class ProposalContainer : MonoBehaviour
     [SerializeField] TextMeshProUGUI againstVoteText;
     [SerializeField] TextMeshProUGUI participantsText;
     [SerializeField] TextMeshProUGUI resultText;
+
+
+    int[] proposalTypeLenghts = new int[] { // TEST - Change it with final value
+        60,         // 1 min
+        3600,       // 1 hour
+        86400,      // 1 day
+        259200,     // 3 days
+        60,         // 1 min
+        20,         // 20 secs
+        259200      // 3 days
+    }; // TEST - Change it with final value
 
     bool justEnded;
 
@@ -61,8 +74,24 @@ public class ProposalContainer : MonoBehaviour
 
     public void Button_DAOvote(bool _isApproving)
     {
-        FindObjectOfType<BlockchainManager>().Button_DAOvote(id, _isApproving);
+        StartCoroutine(FindObjectOfType<BlockchainManager>().VoteCall(this, _isApproving));
     }
+
+    public void OnProposalUpdate(Contracts.Contracts.StickDAO.
+        ContractDefinition.ProposalsOutputDTO info
+    ) {
+        id = (int)info.Id;
+        description = info.Description;
+        startTime = (int)info.StartTime;
+        endingTime = (int)info.StartTime + proposalTypeLenghts[(int)info.ProposalType];
+        status = info.Status;
+        forVotes = (int)info.YayCount;
+        againstVotes = (int)info.NayCount;
+        participants = (int)info.Participants;
+
+        DisplayInfo();
+    }
+
     public void DisplayInfo()
     {
         idText.text = id.ToString();

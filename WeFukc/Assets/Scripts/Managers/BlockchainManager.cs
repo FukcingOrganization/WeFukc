@@ -84,6 +84,8 @@ public class BlockchainManager : MonoBehaviour
     [SerializeField] TMP_InputField proposalDescription;
     [SerializeField] TextMeshProUGUI tetet;
     [SerializeField] TMP_Dropdown proposalTypeInput;
+
+    int proposalCounter;
     #endregion    
 
     /* Notes
@@ -163,10 +165,6 @@ public class BlockchainManager : MonoBehaviour
 
     // DAO
     public void Button_DAOnewProposal() { StartCoroutine(NewProposalCall()); }
-    public void Button_DAOvote(BigInteger _proposalID, bool _approve) { 
-        // Check if the account has enough DAO tokens
-        StartCoroutine(VoteCall(_proposalID, _approve)); 
-    }
 
     // Item
     public void Button_ItemMint(BigInteger id, BigInteger amount) { StartCoroutine(MintItemCall(id, amount)); }
@@ -1160,6 +1158,29 @@ public class BlockchainManager : MonoBehaviour
 
         if (contractTransactionUnityRequest != null)
         {
+            // Update proposal counter
+
+            print("View Proposal Counter - DAO Contract: " + DAOContractAddress);
+
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.StickDAO.ContractDefinition.ProposalCounterFunction,
+                Contracts.Contracts.StickDAO.ContractDefinition.ProposalCounterOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.StickDAO.ContractDefinition
+                .ProposalCounterFunction()
+            { }, DAOContractAddress);
+
+            //Getting the dto response already decoded
+            proposalCounter = (int)queryRequest.Result.Value;
+            print("Counter: " + proposalCounter);
+
+            // Save the current counter
+            int currentCounter = proposalCounter;
+
+            // THEN, send new proposal transaction
+
             var callFunction = new Contracts.Contracts.StickDAO.ContractDefinition.NewProposalFunction
             {
                 Description = proposalDescription.text,
@@ -1177,13 +1198,37 @@ public class BlockchainManager : MonoBehaviour
             {
                 print(contractTransactionUnityRequest.Exception.Message);
             }
+
+
+            // THEN check if the counter has changed
+
+            int propChecked = 0;
+            bool counterChanged = false;
+
+            while (propChecked < 5 && !counterChanged)
+            {
+                print("Waiting 10 seconds to check if the proposal counter has changed");
+                yield return new WaitForSeconds(10f);
+
+                // Get the updated counter again
+                yield return queryRequest.Query(new Contracts.Contracts.StickDAO.ContractDefinition
+                .ProposalCounterFunction()
+                { }, DAOContractAddress);
+
+                // check if it is changed
+                proposalCounter = (int)queryRequest.Result.Value;
+                if (proposalCounter > currentCounter) { counterChanged = true; }
+                propChecked++;
+            }
+
+            if (counterChanged) { StartCoroutine(GetProposal(proposalCounter - 1)); }
         }
     }
-    private IEnumerator VoteCall(BigInteger _proposalID, bool _approve)
+    public IEnumerator VoteCall(ProposalContainer proposal, bool _approve)
     {
         print("Wallet: " + _selectedAccountAddress);
         print("Vote - DAO Contract: " + DAOContractAddress);
-        print("Proposal ID: " + _proposalID);
+        print("Proposal ID: " + proposal.id);
         print("Approve?: " + _approve);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -1192,7 +1237,7 @@ public class BlockchainManager : MonoBehaviour
         {
             var callFunction = new Contracts.Contracts.StickDAO.ContractDefinition.VoteFunction
             {
-                ProposalID = _proposalID,
+                ProposalID = proposal.id,
                 IsApproving = _approve
             };
 
@@ -1208,6 +1253,22 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(UpdateProposal(proposal));
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(UpdateProposal(proposal));
     }
     // LATER: Spending Proposal Claim Functions
 
@@ -1239,6 +1300,131 @@ public class BlockchainManager : MonoBehaviour
             print("DAO Balance: " + DAObalance);
         }
     }
+    public IEnumerator GetProposalCounter()
+    {
+        print("View Proposal Counter - DAO Contract: " + DAOContractAddress);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.StickDAO.ContractDefinition.ProposalCounterFunction,
+                Contracts.Contracts.StickDAO.ContractDefinition.ProposalCounterOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.StickDAO.ContractDefinition
+                .ProposalCounterFunction()
+            { }, DAOContractAddress);
+
+            //Getting the dto response already decoded
+            proposalCounter = (int)queryRequest.Result.Value;
+            print("Counter: " + proposalCounter);
+        }
+    }
+    public IEnumerator GetLastProposals(int propAmountToGet)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("View Proposal Counter - DAO Contract: " + DAOContractAddress);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.StickDAO.ContractDefinition.ProposalCounterFunction,
+                Contracts.Contracts.StickDAO.ContractDefinition.ProposalCounterOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.StickDAO.ContractDefinition
+                .ProposalCounterFunction()
+            { }, DAOContractAddress);
+
+            //Getting the dto response already decoded
+            int totalNumberOfProposals = (int)queryRequest.Result.Value;
+            print("Proposal Counter: " + totalNumberOfProposals);
+
+            // Determine the start and end index to get
+            int startIndex;
+            int endIndex;
+
+            if (totalNumberOfProposals - propAmountToGet > 0)
+            {
+                startIndex = totalNumberOfProposals - propAmountToGet;
+                endIndex = startIndex + propAmountToGet - 1;
+            }
+            else
+            {
+                startIndex = 1;
+                endIndex = totalNumberOfProposals - 1;
+            }
+
+            // Get proposals
+            for (int i = startIndex; i <= endIndex; i++)
+            {
+                StartCoroutine(GetProposal(i));
+            }
+        }
+    }
+    public IEnumerator GetProposal(BigInteger proposalID)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("View Proposals - DAO Contract: " + DAOContractAddress);
+        print("Proposal ID: " + proposalID);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.StickDAO.ContractDefinition.ProposalsFunction,
+                Contracts.Contracts.StickDAO.ContractDefinition.ProposalsOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.StickDAO.ContractDefinition
+                .ProposalsFunction()
+            {
+                ReturnValue1 = proposalID
+            }, DAOContractAddress);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+
+            chainReader.OnProposalReturn(dtoResult);
+        }
+    }
+    public IEnumerator UpdateProposal(ProposalContainer proposal)
+    {
+        print("Updateing Proposal - DAO Contract: " + DAOContractAddress);
+        print("Proposal ID: " + proposal.id);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.StickDAO.ContractDefinition.ProposalsFunction,
+                Contracts.Contracts.StickDAO.ContractDefinition.ProposalsOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.StickDAO.ContractDefinition
+                .ProposalsFunction()
+            {
+                ReturnValue1 = proposal.id
+            }, DAOContractAddress);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+
+            proposal.OnProposalUpdate(dtoResult);
+        }
+    }
+    // BACKUP - OLD WAY
+    /* HERE
     public IEnumerator GetLastProposalBasics(BigInteger proposalAmount)
     {
         print("Wallet: " + _selectedAccountAddress);
@@ -1265,7 +1451,7 @@ public class BlockchainManager : MonoBehaviour
             var dtoResult = queryRequest.Result;
             var amount = dtoResult.ReturnValue1.Count;
 
-            chainReader.OnProposalReturn(
+            chainReader.OnProposalReturn_OLD(
                 dtoResult.ReturnValue1, 
                 dtoResult.ReturnValue2, 
                 dtoResult.ReturnValue3, 
@@ -1322,7 +1508,7 @@ public class BlockchainManager : MonoBehaviour
             print("Last Proposal for votes: " + dtoResult.ReturnValue3[amount - 1]);
         }
     }
-
+    */
 
 
     //------ ROUND CONTRACT ------//

@@ -80,7 +80,7 @@ public class BlockchainReader : MonoBehaviour
     BlockchainManager chainManager;
     TextFitter messageWindow;
 
-    List<ProposalContainer> proposals;
+    // List<ProposalContainer> proposals; // NOT IN USE
 
     [HideInInspector] public Clan walletClan = new Clan();
     [HideInInspector] public Clan displayClan = new Clan();
@@ -88,10 +88,15 @@ public class BlockchainReader : MonoBehaviour
     string walletAddress;
     int numOfLords;
 
+    const int PROPOSAL_AMOUNT_TO_GET = 20;
+    const int REJECTED_PROPOSAL_AMOUNT_TO_GET = 10; // NOT IN USE
+    int rejectedProposalCounter; // NOT IN USE
+
     bool walletInfoSet;
     bool itemInfoSet;
     bool lordInfoSet; 
     bool bossListed;
+    bool DAOinfoSet;
     [HideInInspector] public bool clanInfoSet;
 
     int roundTotalClanReward;
@@ -518,11 +523,40 @@ public class BlockchainReader : MonoBehaviour
     }
 
     // DAO
-    public void Button_GetLastProposals(int proposalAmount)
+    public void Button_GetLastProposals()
     {
-        StartCoroutine(chainManager.GetLastProposalBasics((BigInteger)proposalAmount));
+        if (DAOinfoSet) { return; }
+        StartCoroutine(chainManager.GetLastProposals(PROPOSAL_AMOUNT_TO_GET));
+        DAOinfoSet = true;
     }
-    public void OnProposalReturn(
+    public void OnProposalReturn(Contracts.Contracts.StickDAO.
+        ContractDefinition.ProposalsOutputDTO proposal
+    ) {
+        // Decide which panel it belongs
+        GameObject panel = activeProposalPanel;
+
+        // create the empty prefab
+        ProposalContainer newProposal;
+
+        // Instantiate according to its status
+        if (proposal.Status > 1)
+        {
+            newProposal = Instantiate(completedProposalPrefab, completedProposalPanel.transform);
+        }
+        else
+        {
+            newProposal = Instantiate(activeProposalPrefab, activeProposalPanel.transform);
+        }
+
+        // Then, write the info on it
+        newProposal.OnProposalUpdate(proposal);
+
+        // Add it to the list
+        // proposals.Add(newProposal);
+    }
+
+    /* OLD PROPOSAL RETURN SYSTEM
+    public void OnProposalReturn_OLD(
         List<BigInteger> ids, 
         List<string> descriptions, 
         List<BigInteger> startTime, 
@@ -561,6 +595,7 @@ public class BlockchainReader : MonoBehaviour
         // Send them to the blockchain manager to request number information
         StartCoroutine(chainManager.GetLastProposalNumbers((BigInteger)proposals.Count, proposals));
     }
+    */
 
     // Conversion Tools
     private static BigInteger ToWei(double value) { return (BigInteger)(value * Math.Pow(10, 18)); }
