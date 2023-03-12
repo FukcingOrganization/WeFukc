@@ -173,7 +173,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 25}
-  m_SizeDelta: {x: 900, y: 50}
+  m_SizeDelta: {x: 700, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1552078936
 CanvasRenderer:
@@ -228,6 +228,8 @@ MonoBehaviour:
   messageObject: {fileID: 1552078932}
   backgrounImage: {fileID: 1552078935}
   text: {fileID: 1251011755}
+  rectTransform: {fileID: 1552078933}
+  textRectTransform: {fileID: 1251011754}
 --- !u!1 &2014169928
 GameObject:
   m_ObjectHideFlags: 0
@@ -374,6 +376,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ff84bce2c91de24ea4599ce1a29675c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  messageWindow: {fileID: 1552078932}
   fukcingLevel: 0
   flevel_playerName: {fileID: 0}
   flevel_bossName: {fileID: 0}

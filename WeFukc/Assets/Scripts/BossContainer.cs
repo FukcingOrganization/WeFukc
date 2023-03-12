@@ -84,20 +84,21 @@ public class BossContainer : MonoBehaviour
 
     public void Button_FundNominate()
     {
+        selectedLevel = int.Parse(levelInput.text);
         StartCoroutine(FindObjectOfType<BlockchainManager>().
-            FundBossCall(BigInteger.Parse(levelInput.text), (BigInteger)id, BigInteger.Parse(fundAmountInput.text)
+            FundBossCall(this, BigInteger.Parse(fundAmountInput.text)
         ));
     }
     public void Button_FundLevel()
     {
         StartCoroutine(FindObjectOfType<BlockchainManager>().
-            FundBossCall(selectedLevel, (BigInteger)id, BigInteger.Parse(fundAmountInput.text)
+            FundBossCall(this, BigInteger.Parse(fundAmountInput.text)
         ));
     }
     public void Button_DefundLevel()
     {
         StartCoroutine(FindObjectOfType<BlockchainManager>().
-            DefundBossCall(selectedLevel, (BigInteger)id, BigInteger.Parse(defundAmountInput.text)
+            DefundBossCall(this, BigInteger.Parse(defundAmountInput.text)
         ));
     }
 

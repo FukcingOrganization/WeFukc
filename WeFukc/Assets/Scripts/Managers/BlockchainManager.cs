@@ -69,29 +69,14 @@ public class BlockchainManager : MonoBehaviour
     [SerializeField] TMP_InputField clanSetModAddressInput;     // Set Mod
     [SerializeField] TMP_InputField clanGiveMemberPointAddressInput;    // Give Member Point - Address
     [SerializeField] TMP_InputField clanGiveMemberPointPointInput;      // Give Member Point - Point
-    [SerializeField] TMP_InputField clanClaimMemberRewardRoundInput;    // Claim Member Reward - Round
-    [SerializeField] TMP_InputField clanClaimMemberRewardClanIDInput;   // Claim Member Reward - ClanID
     [SerializeField] TMP_InputField clanTransferLeadershipAddressInput; // Transfer Leadership - New Address
     [SerializeField] TMP_InputField clanUpdateInfoNameInput;  // Update Info - Name
     [SerializeField] TMP_InputField clanUpdateInfoDescInput;  // Update Info - Description
     [SerializeField] TMP_InputField clanUpdateInfoMottoInput; // Update Info - Motto
     [SerializeField] TMP_InputField clanUpdateInfoLogoInput;  // Update Info - Logo
-    // Texts
-    [SerializeField] TextMeshProUGUI clanAvailableMemberRewardText; // Clam Member Reward
 
 
     #endregion
-
-    #region ROUND
-    [Header("== Round Objects ==")]
-    // Objects
-    [SerializeField] TMP_InputField backerRoundInput;
-    [SerializeField] TextMeshProUGUI[] backerRewards = new TextMeshProUGUI[11];
-    [SerializeField] TextMeshProUGUI[] backerFunds = new TextMeshProUGUI[11];
-    [SerializeField] TextMeshProUGUI[] totalFunds = new TextMeshProUGUI[11];
-    [SerializeField] TextMeshProUGUI[] numOfBackers = new TextMeshProUGUI[11];
-    #endregion
-
 
     #region DAO
     [Header("== DAO Objects ==")]
@@ -169,19 +154,9 @@ public class BlockchainManager : MonoBehaviour
         if (point == 0) { print("PLEASE ENTER SOME POINT !!"); return; }
         StartCoroutine(GiveMemberPointCall(point, isDecreasing)); 
     }
-    public void Button_ClanClaimMemberReward() { StartCoroutine(ClaimMemberRewardCall()); }
     public void Button_ClanTransferLeadership() { StartCoroutine(TransferLeadershipCall()); }
     public void Button_ClanDisband() { StartCoroutine(DisbandCall()); }
     public void Button_ClanUpdateInfo() { StartCoroutine(UpdateClanInfoCall()); }
-    public void Button_ClanViewMemberReward() 
-    { 
-        BigInteger clanID = BigInteger.Parse(clanClaimMemberRewardClanIDInput.text);
-        BigInteger roundNumber = BigInteger.Parse(clanClaimMemberRewardRoundInput.text);
-
-        if (clanID == 0 || roundNumber == 0) { print("Invalid Input !!!"); }
-
-        StartCoroutine(ViewMemberRewardCall(clanID, roundNumber)); 
-    }
     public void Button_ClanViewInfo() { StartCoroutine(ViewClanInfoCall(int.Parse(clanIDSearchInput.text))); }
 
     // Round
@@ -536,14 +511,14 @@ public class BlockchainManager : MonoBehaviour
             }
         }
     }
-    private IEnumerator ClaimMemberRewardCall()
+    public IEnumerator ClaimMemberRewardCall(BigInteger clanID, BigInteger roundNumber)
     {
         print("Wallet: " + _selectedAccountAddress);
         print("Claim Member Reward - Clan Contract: " + clanContractAddress);
 
         // Parameters
-        print("Clan ID: " + BigInteger.Parse(clanClaimMemberRewardClanIDInput.text));
-        print("Round Number: " + BigInteger.Parse(clanClaimMemberRewardRoundInput.text));
+        print("Clan ID: " + clanID);
+        print("Round Number: " + roundNumber);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -551,8 +526,8 @@ public class BlockchainManager : MonoBehaviour
         {
             var callFunction = new Contracts.Contracts.StickClan.ContractDefinition.MemberRewardClaimFunction
             {
-                ClanID = BigInteger.Parse(clanClaimMemberRewardClanIDInput.text), // Get the displayed clan ID
-                RoundNumber = BigInteger.Parse(clanClaimMemberRewardRoundInput.text)
+                ClanID = clanID, // Get the displayed clan ID
+                RoundNumber = roundNumber
             };
 
             yield return contractTransactionUnityRequest.
@@ -567,6 +542,22 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(ViewMemberRewardCall(clanID, roundNumber));
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(ViewMemberRewardCall(clanID, roundNumber));
     }
     private IEnumerator UpdateClanInfoCall()
     {
@@ -574,7 +565,7 @@ public class BlockchainManager : MonoBehaviour
         print("Update Clan Info - Clan Contract: " + clanContractAddress);
 
         // Parameters
-        print("Clan ID: " + BigInteger.Parse(clanClaimMemberRewardClanIDInput.text));
+        print("Clan ID: " + chainReader.displayClan.id);
         print("Name: " + clanUpdateInfoNameInput.text);
         print("Description: " + clanUpdateInfoDescInput.text);
         print("Motto: " + clanUpdateInfoMottoInput.text);
@@ -586,7 +577,7 @@ public class BlockchainManager : MonoBehaviour
         {
             var callFunction = new Contracts.Contracts.StickClan.ContractDefinition.UpdateClanInfoFunction
             {
-                ClanID = BigInteger.Parse(clanClaimMemberRewardClanIDInput.text), // Get the displayed clan ID
+                ClanID = chainReader.displayClan.id,
                 NewName = clanUpdateInfoNameInput.text,
                 NewDescription = clanUpdateInfoDescInput.text,
                 NewMotto = clanUpdateInfoMottoInput.text,
@@ -670,7 +661,7 @@ public class BlockchainManager : MonoBehaviour
     }
 
     // Read
-    private IEnumerator ViewMemberRewardCall(BigInteger clanID, BigInteger roundNumber)
+    public IEnumerator ViewMemberRewardCall(BigInteger clanID, BigInteger roundNumber)
     {
         print("Wallet: " + _selectedAccountAddress);
         print("View Member Reward - Clan Contract: " + clanContractAddress);
@@ -697,13 +688,11 @@ public class BlockchainManager : MonoBehaviour
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
-            var reward = dtoResult.ReturnValue1;
+            var reward = FromWei(dtoResult.ReturnValue1);
 
-            clanAvailableMemberRewardText.text = reward.ToString();
+            chainReader.OnClanRewardReturn(reward);
             print("Available Member Reward: " + reward);
         }
-
-        
     }
     public IEnumerator WalletClanCall()
     {
@@ -1338,13 +1327,13 @@ public class BlockchainManager : MonoBehaviour
 
     //------ ROUND CONTRACT ------//
     // Write
-    public IEnumerator FundBossCall(BigInteger level, BigInteger bossID, BigInteger amount)
+    public IEnumerator FundBossCall(BossContainer boss, BigInteger amount)
     {
         print("Wallet: " + _selectedAccountAddress);
         print("Fund Boss - Round Contract: " + roundContractAddress);
 
-        print("Level: " + level);
-        print("Boss ID: " + bossID);
+        print("Level: " + boss.selectedLevel);
+        print("Boss ID: " + boss.id);
         print("Amount: " + amount);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -1353,8 +1342,8 @@ public class BlockchainManager : MonoBehaviour
         {
             var callFunction = new Contracts.Contracts.StickRound.ContractDefinition.FundBossFunction
             {
-                LevelNumber = level,
-                BossID = bossID,
+                LevelNumber = boss.selectedLevel,
+                BossID = boss.id,
                 FundAmount = ToWei((double)amount)
             };
 
@@ -1370,14 +1359,30 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(GetCandidateFunds(chainReader.currentRound, boss));
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(GetCandidateFunds(chainReader.currentRound, boss));
     }
-    public IEnumerator DefundBossCall(BigInteger level, BigInteger bossID, BigInteger amount)
+    public IEnumerator DefundBossCall(BossContainer boss, BigInteger amount)
     {
         print("Wallet: " + _selectedAccountAddress);
         print("Defund Boss - Round Contract: " + roundContractAddress);
 
-        print("Level: " + level);
-        print("Boss ID: " + bossID);
+        print("Level: " + boss.selectedLevel);
+        print("Boss ID: " + boss.id);
         print("Amount: " + amount);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
@@ -1386,8 +1391,8 @@ public class BlockchainManager : MonoBehaviour
         {
             var callFunction = new Contracts.Contracts.StickRound.ContractDefinition.FundBossFunction
             {
-                LevelNumber = level,
-                BossID = bossID,
+                LevelNumber = boss.selectedLevel,
+                BossID = boss.id,
                 FundAmount = ToWei((double)amount)
             };
 
@@ -1403,8 +1408,24 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(GetCandidateFunds(chainReader.currentRound, boss));
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(GetCandidateFunds(chainReader.currentRound, boss));
     }
-    private IEnumerator ClaimBackerRewardCall(BigInteger roundNumber)
+    public IEnumerator ClaimBackerRewardCall(BigInteger roundNumber)
     {
         print("Wallet: " + _selectedAccountAddress);
         print("Claim Backer Reward- Round Contract: " + roundContractAddress);
@@ -1432,6 +1453,22 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(GetBackerRewards(chainReader.currentRound));
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(GetBackerRewards(chainReader.currentRound));
     }
 
     // Read
@@ -1439,8 +1476,6 @@ public class BlockchainManager : MonoBehaviour
     {
         print("Wallet: " + _selectedAccountAddress);
         print("Get Backer Reward - Round Contract: " + roundContractAddress);
-
-        BigInteger roundNumber = BigInteger.Parse(backerRoundInput.text);
 
         var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
 
@@ -1459,7 +1494,7 @@ public class BlockchainManager : MonoBehaviour
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
 
-            chainReader.OnBackerRewardReturn(dtoResult.ReturnValue1);
+            chainReader.OnLevelBackerRewardReturn(dtoResult.ReturnValue1);
             print("Level 1 Backer Reward: " + dtoResult.ReturnValue1[0]);
         }
     }
@@ -1592,7 +1627,66 @@ public class BlockchainManager : MonoBehaviour
             print("Fund: " + dtoResult.ReturnValue1);
         }
     }
+    public IEnumerator GetBackerRewards(BigInteger roundNumber)
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("View Backer Reward Info - Round Contract: " + roundContractAddress);
+        // Paramters
+        print("Round number:" + roundNumber);
 
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.StickRound.ContractDefinition.ViewBackerRewardInfoFunction,
+                Contracts.Contracts.StickRound.ContractDefinition.ViewBackerRewardInfoOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.StickRound.ContractDefinition
+                .ViewBackerRewardInfoFunction()
+            {
+                RoundNumber = roundNumber,
+                Backer = _selectedAccountAddress
+            }, roundContractAddress);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            chainReader.OnBackerRewardsReturn(dtoResult.ReturnValue1, 
+                dtoResult.ReturnValue2, dtoResult.ReturnValue3, dtoResult.ReturnValue4);
+        }
+    }
+    public IEnumerator GetPlayerRewards(BigInteger roundNumber)
+    {
+        // DOESN'T WORK WITHOUT MERKLE PROOF
+        
+        print("Wallet: " + _selectedAccountAddress);
+        print("View Player Reward Info - Round Contract: " + roundContractAddress);
+        // Paramters
+        print("Round number:" + roundNumber);
+
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.StickRound.ContractDefinition.ViewPlayerRewardsFunction,
+                Contracts.Contracts.StickRound.ContractDefinition.ViewPlayerRewardsOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.StickRound.ContractDefinition
+                .ViewPlayerRewardsFunction()
+            {
+                RoundNumber = roundNumber,
+                // NEED MERKLE PROOFF
+            }, roundContractAddress);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+        }
+    }
 
     //------ BOSS CONTRACT ------//
     // Read
@@ -1744,6 +1838,22 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(ItemMintAllowanceCheckCall());
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(ItemMintAllowanceCheckCall());
     }
 
     // Read

@@ -16,6 +16,27 @@ public class BlockchainReader : MonoBehaviour
     [SerializeField] TextMeshProUGUI[] daoBalanceTexts;
     [SerializeField] TextMeshProUGUI[] clanNameTexts;
 
+    // REWARD
+    [Header("Reward")]
+    [SerializeField] TMP_InputField clanRoundInput;
+    [SerializeField] TMP_InputField clanIDInput;
+    [SerializeField] TextMeshProUGUI clanRewardText;
+    [SerializeField] TMP_InputField playerRoundInput;
+    [SerializeField] TextMeshProUGUI[] playerRewardsTexts;
+    [SerializeField] TextMeshProUGUI playerRewardsTotalText;
+    [SerializeField] TextMeshProUGUI[] playerTotalRewardsTexts;
+    [SerializeField] TextMeshProUGUI playerTotalRewardsTotalText;
+    [SerializeField] TextMeshProUGUI[] playerCountTexts;
+    [SerializeField] TMP_InputField backerRoundInput;
+    [SerializeField] TextMeshProUGUI[] backerRewardsTexts;
+    [SerializeField] TextMeshProUGUI backerRewardsTotalText;
+    [SerializeField] TextMeshProUGUI[] backerFundsTexts;
+    [SerializeField] TextMeshProUGUI backerFundsTotalText;
+    [SerializeField] TextMeshProUGUI[] backerTotalFundsTexts;
+    [SerializeField] TextMeshProUGUI backerTotalFundsTotalText;
+    [SerializeField] TextMeshProUGUI[] backerCountTexts;
+    [SerializeField] TextMeshProUGUI backerCountTotalText;
+
     // CLAN
     [Header("Clan")]
     [SerializeField] TextMeshProUGUI clanInfoNameText;        // Clan Info
@@ -61,12 +82,9 @@ public class BlockchainReader : MonoBehaviour
 
     List<ProposalContainer> proposals;
 
-    [HideInInspector]
-    public Clan walletClan = new Clan();
-    [HideInInspector]
-    public Clan displayClan = new Clan();
-    [HideInInspector]
-    public int walletMemberPoints;
+    [HideInInspector] public Clan walletClan = new Clan();
+    [HideInInspector] public Clan displayClan = new Clan();
+    [HideInInspector] public int walletMemberPoints;
     string walletAddress;
     int numOfLords;
 
@@ -74,13 +92,11 @@ public class BlockchainReader : MonoBehaviour
     bool itemInfoSet;
     bool lordInfoSet; 
     bool bossListed;
-    [HideInInspector]
-    public bool clanInfoSet;
+    [HideInInspector] public bool clanInfoSet;
 
     int roundTotalClanReward;
-    [HideInInspector]
-    public int currentRound;
-    public double[] backerRewards;
+    [HideInInspector] public int currentRound;
+    [HideInInspector] public double[] backerRewards;
     int[] itemBalances = new int[5];
 
     /* BlockchainReader Script:
@@ -128,8 +144,6 @@ public class BlockchainReader : MonoBehaviour
         chainManager = FindObjectOfType<BlockchainManager>();
         messageWindow = FindObjectOfType<LevelManager>().messageWindow.GetComponent<TextFitter>();
 
-        StartCoroutine(DisplayWindowText());
-
         print("Name:" + messageWindow.name);
     }
     void Update()
@@ -138,20 +152,6 @@ public class BlockchainReader : MonoBehaviour
         if (messageWindow == null) { messageWindow = FindObjectOfType<LevelManager>().messageWindow.GetComponent<TextFitter>();
             print("Name:" + messageWindow.name);
         }
-    }
-
-    private IEnumerator DisplayWindowText()
-    {
-        print("Waiting 5 sec to display green message");
-        yield return new WaitForSeconds(5f);
-
-        print("Displaying a good message");
-        messageWindow.DisplayMessage("All is well", true, 3f);
-
-        print("Waiting 5 sec to display red message");
-        yield return new WaitForSeconds(5f);
-
-        messageWindow.DisplayMessage("Things gonna get dirty!", false, 6f);
     }
 
     // Basic Info Display
@@ -188,6 +188,160 @@ public class BlockchainReader : MonoBehaviour
         {
             text.text = ((int)balance).ToString() + " STICK";
         }
+    }
+
+    // Rewards
+    // Clan rewards
+    bool checkClanRewardParameters()
+    {
+        if (clanRoundInput.text == "" || clanIDInput.text == "" || clanIDInput.text == "0")
+        {
+            messageWindow.DisplayMessage("Please enter round number and clan ID to check clan rewards!", false, 3f);
+            return false;
+        }
+
+        int roundNumber = int.Parse(clanRoundInput.text);
+
+        if (roundNumber < 1 || roundNumber > currentRound)
+        {
+            messageWindow.DisplayMessage("Invalid round nubmer!", false, 3f);
+            return false;
+        }
+
+        if (roundNumber == currentRound)
+        {
+            messageWindow.DisplayMessage("You can't have any reward for this round because it is still going on!", false, 5f);
+            return false;
+        }
+
+        return true;
+    }
+    public void Button_ClanRewardCheck()
+    {   
+        if (!checkClanRewardParameters()) { return; }
+        StartCoroutine(chainManager.ViewMemberRewardCall(BigInteger.Parse(clanIDInput.text), BigInteger.Parse(clanRoundInput.text)));
+    }
+    public void Button_ClaimClanReward()
+    {
+        // Check parameters and claim amount. If not sufficient, then return.
+        if (!checkClanRewardParameters() || double.Parse(clanRewardText.text) == 0) { return; }
+        StartCoroutine(chainManager.ClaimMemberRewardCall(BigInteger.Parse(clanIDInput.text), BigInteger.Parse(clanRoundInput.text)));
+    }
+    // Player rewards
+    public void Button_PlayerRewardCheck() { }
+    // Backer Rewards
+    bool checkBackerRewardParameters()
+    {
+        if (backerRoundInput.text == "")
+        {
+            messageWindow.DisplayMessage("Please enter round number to check backer rewards!", false, 3f);
+            return false;
+        }
+
+        int roundNumber = int.Parse(backerRoundInput.text);
+
+        if (roundNumber == currentRound)
+        {
+            messageWindow.DisplayMessage("You can't have any reward for this round because it is still going on!", false, 5f);
+            return false;
+        }
+        if (roundNumber < 0 || roundNumber > currentRound)
+        {
+            messageWindow.DisplayMessage("Invalid round nubmer!", false, 3f);
+            return false;
+        }
+
+        return true;
+    }
+    public void Button_BackerRewardCheck()
+    {        
+        if (!checkBackerRewardParameters()) { return; }
+        StartCoroutine(chainManager.GetBackerRewards(BigInteger.Parse(backerRoundInput.text)));
+    }
+    public void Button_BackerRewardClaim()
+    {
+        // If the round number is wrong or there is no backer reward, then return
+        if (!checkBackerRewardParameters() || double.Parse(backerRewardsTotalText.text) == 0) { return; }
+        StartCoroutine(chainManager.ClaimBackerRewardCall(BigInteger.Parse(backerRoundInput.text)));
+    }
+    // Return functions
+    public void OnClanRewardReturn(double reward)
+    {
+        clanRewardText.text = reward.ToString();
+    }
+    public void OnPlayerRewardsReturn(
+        List<BigInteger> rewards, List<BigInteger> totalRewards,
+        List<BigInteger> playerCounts
+    )
+    {
+        double totalUserReward = 0;
+        double totalAllRewards = 0;
+
+        for (int i = 0; i < rewards.Count; i++)
+        {
+            // Convert values from Wei to Ether
+            double dReward = FromWei(rewards[i]);
+            double dTotalRewards = FromWei(totalRewards[i]);
+            double dPlayerCounts = FromWei(playerCounts[i]);
+
+            // Add to total
+            totalUserReward += dReward;
+            totalAllRewards += dTotalRewards;
+
+            // Display
+            playerRewardsTexts[i].text = dReward.ToString();
+            playerTotalRewardsTexts[i].text = dTotalRewards.ToString();
+            playerCountTexts[i].text = dPlayerCounts.ToString();
+        }
+
+        // Display totals
+        playerRewardsTotalText.text = totalUserReward.ToString();
+        playerTotalRewardsTotalText.text = totalAllRewards.ToString();
+    }
+    public void OnBackerRewardsReturn(
+        List<BigInteger> rewards, List<BigInteger> funds, 
+        List<BigInteger> totalFunds, List<BigInteger> backerCounts
+    )
+    {
+        print("OnBackerRewardsReturn:");
+
+        double totalUserReward = 0;
+        double totalUserFunds = 0;
+        double totalAllFunds = 0;
+        double totalBackersCount = 0;
+
+        for (int i = 0; i < rewards.Count; i++)
+        {
+            // Convert values from Wei to Ether
+            double dReward = FromWei(rewards[i]);
+            double dFunds = FromWei(funds[i]);
+            double dTotalFunds = FromWei(totalFunds[i]);
+            double dBackerCounts = FromWei(backerCounts[i]);
+
+            // Add to total
+            totalUserReward += dReward;
+            totalUserFunds += dFunds;
+            totalAllFunds += dTotalFunds;
+            totalBackersCount += dBackerCounts;
+
+            // Display
+            backerRewardsTexts[i].text = dReward.ToString();
+            backerFundsTexts[i].text = dFunds.ToString();
+            backerTotalFundsTexts[i].text = dTotalFunds.ToString();
+            backerCountTexts[i].text = dBackerCounts.ToString();
+
+            print("Level: " + i);
+            print("Rewards: " + dReward.ToString());
+            print("Funds: " + dFunds.ToString());
+            print("Total Funds: " + dTotalFunds.ToString());
+            print("Backer Count: " + dBackerCounts.ToString());
+        }
+
+        // Display totals
+        backerRewardsTotalText.text = totalUserReward.ToString();
+        backerFundsTotalText.text = totalUserFunds.ToString();
+        backerTotalFundsTotalText.text = totalAllFunds.ToString();
+        backerCountTotalText.text = totalBackersCount.ToString();
     }
     
     // Check Item Balance and Allowance
@@ -344,7 +498,7 @@ public class BlockchainReader : MonoBehaviour
         }
 
     }
-    public void OnBackerRewardReturn(List<BigInteger> rewards)
+    public void OnLevelBackerRewardReturn(List<BigInteger> rewards)
     {
         for (int i = 0; i < rewards.Count; i++)
         {
