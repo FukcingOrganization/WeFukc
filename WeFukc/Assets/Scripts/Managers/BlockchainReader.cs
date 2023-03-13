@@ -49,6 +49,7 @@ public class BlockchainReader : MonoBehaviour
     [SerializeField] TextMeshProUGUI walletRewardShare;
     [SerializeField] Member memberPrefab;
     [SerializeField] GameObject memberPanel;
+    [SerializeField] GameObject declaredClanPanel;
 
     // ITEM
     [Header("Item")]
@@ -411,9 +412,19 @@ public class BlockchainReader : MonoBehaviour
     // Clan
     public void Button_ViewMyClan()
     {
+        if (walletClan.id == 0) { return; }
+
         clanInfoSet = false;
         DisplayClanInfo(walletClan);
         DisplayClanPoints(walletClan);
+    }
+    public void OnDeclaredClan(string declaredClanName, int id)
+    {
+        // Set Active declared clan window
+        declaredClanPanel.SetActive(true);
+
+        // Display declared clan name
+        declaredClanPanel.GetComponentInChildren<TextMeshProUGUI>().text = declaredClanName;
     }
     public void DisplayClanInfo(Clan clan)
     {

@@ -343,6 +343,22 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + 5f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1 + 5f);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(WalletClanCall());
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + 10f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2 + 10f);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(WalletClanCall());
     }
     private IEnumerator DeclareClanCall()
     {
@@ -371,7 +387,7 @@ public class BlockchainManager : MonoBehaviour
             {
                 print(contractTransactionUnityRequest.Exception.Message);
             }
-            
+
         }
     }
     private IEnumerator SetMemberCall(bool assignAsMember)
@@ -406,6 +422,22 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + 5f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1 + 5f);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(GetClanPointsCall(chainReader.displayClan.id));
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + 10f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2 + 10f);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(GetClanPointsCall(chainReader.displayClan.id));
     }
     private IEnumerator SetExecutorCall(bool assignAsExecutor)
     {
@@ -439,6 +471,22 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + 5f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1 + 5f);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(GetClanPointsCall(chainReader.displayClan.id));
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + 10f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2 + 10f);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(GetClanPointsCall(chainReader.displayClan.id));
     }
     private IEnumerator SetModCall(bool assignAsMod)
     {
@@ -472,6 +520,22 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + 5f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1 + 5f);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(GetClanPointsCall(chainReader.displayClan.id));
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + 10f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2 + 10f);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(GetClanPointsCall(chainReader.displayClan.id));
     }
     private IEnumerator GiveMemberPointCall(BigInteger point, bool isDecreasing)
     {
@@ -508,6 +572,22 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + 5f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1 + 5f);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(GetClanPointsCall(chainReader.displayClan.id));
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + 10f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2 + 10f);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(GetClanPointsCall(chainReader.displayClan.id));
     }
     public IEnumerator ClaimMemberRewardCall(BigInteger clanID, BigInteger roundNumber)
     {
@@ -594,6 +674,22 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + 5f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1 + 5f);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(ViewClanInfoCall(chainReader.displayClan.id));
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + 10f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2 + 10f);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(ViewClanInfoCall(chainReader.displayClan.id));
     }
     private IEnumerator TransferLeadershipCall()
     {
@@ -626,6 +722,22 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + 5f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1 + 5f);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(ViewClanInfoCall(chainReader.displayClan.id));
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + 10f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2 + 10f);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(ViewClanInfoCall(chainReader.displayClan.id));
     }
     private IEnumerator DisbandCall()
     {
@@ -656,6 +768,22 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + 5f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1 + 5f);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(ViewClanInfoCall(chainReader.displayClan.id));
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + 10f + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2 + 10f);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(ViewClanInfoCall(chainReader.displayClan.id));
     }
 
     // Read
@@ -721,8 +849,10 @@ public class BlockchainManager : MonoBehaviour
             if (clanID > 0 && !chainReader.clanInfoSet) 
             {
                 chainReader.walletClan.id = (int)clanID;  // Save the account's clan ID
-                ViewClanInfoCall((int)clanID);
+                StartCoroutine(ViewClanInfoCall((int)clanID));
             }
+            if (clanID == 0) { StartCoroutine(GetDeclaredClanCall()); }
+
             print("Clan ID of " + _selectedAccountAddress + " : " + clanID);
         }
     }
@@ -848,8 +978,60 @@ public class BlockchainManager : MonoBehaviour
             print("Clan Point: " + clan.clanPoint);
         }
     }
+    public IEnumerator GetDeclaredClanCall()
+    {
+        print("Wallet: " + _selectedAccountAddress);
+        print("Get Declared Clan - Clan Contract: " + clanContractAddress);
 
-    
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var queryRequest = new QueryUnityRequest<
+                Contracts.Contracts.StickClan.ContractDefinition.DeclaredClanFunction,
+                Contracts.Contracts.StickClan.ContractDefinition.DeclaredClanOutputDTO>(
+                GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+            );
+
+            yield return queryRequest.Query(new Contracts.Contracts.StickClan.ContractDefinition
+                .DeclaredClanFunction()
+            {
+                ReturnValue1 = _selectedAccountAddress
+            }, clanContractAddress);
+
+            //Getting the dto response already decoded
+            var dtoResult = queryRequest.Result;
+            var clanID = dtoResult.ReturnValue1;
+
+            // If the user has a declared clan, then get its name as well
+            if (clanID > 0)
+            {
+                var queryRequest_name = new QueryUnityRequest<
+                    Contracts.Contracts.StickClan.ContractDefinition.ViewClanInfoFunction,
+                    Contracts.Contracts.StickClan.ContractDefinition.ViewClanInfoOutputDTO>(
+                    GetUnityRpcRequestClientFactory(), _selectedAccountAddress
+                );
+
+                yield return queryRequest_name.Query(new Contracts.Contracts.StickClan.ContractDefinition
+                    .ViewClanInfoFunction()
+                {
+                    ClanID = clanID
+                }, clanContractAddress);
+
+                //Getting the dto response already decoded
+                var dtoResult_name = queryRequest_name.Result;
+
+                var name = dtoResult_name.ReturnValue4;
+
+                // Display them on the screen
+                chainReader.OnDeclaredClan(name, (int)clanID);
+
+                print("Declared Clan Name: " + name + " (" + clanID + ") of " + _selectedAccountAddress);
+            }
+        }
+    }
+
+
 
     //------ LORD CONTRACT ------//
     // Write
