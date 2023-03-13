@@ -880,8 +880,24 @@ public class BlockchainManager : MonoBehaviour
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(GetLordSupply());
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(GetLordSupply());
     }
-    public IEnumerator MintLicenseCall(LordContainer lord, BigInteger _amount)
+    public IEnumerator MintLicenseCall(LordContainer lordContainer, Lord lord, BigInteger _amount)
     {
         print("Wallet: " + _selectedAccountAddress);
         print("Mint License - Lord Contract: " + lordContractAddress);
@@ -902,13 +918,29 @@ public class BlockchainManager : MonoBehaviour
             if (contractTransactionUnityRequest.Exception == null)
             {
                 print(contractTransactionUnityRequest.Result);
-                lord.MintSuccess();
+                lordContainer.MintSuccess();
             }
             else
             {
                 print(contractTransactionUnityRequest.Exception.Message);
             }
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(LordNumberOfLicenseCall(lord));
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(LordNumberOfLicenseCall(lord));
     }
     public IEnumerator LordDAOvoteCall(LordContainer lord, BigInteger _proposalID, bool _isApproving)
     {

@@ -96,7 +96,7 @@ public class BlockchainReader : MonoBehaviour
     bool itemInfoSet;
     bool lordInfoSet; 
     bool bossListed;
-    bool DAOinfoSet;
+    [HideInInspector] public bool DAOinfoSet;
     [HideInInspector] public bool clanInfoSet;
 
     int roundTotalClanReward;
@@ -417,6 +417,7 @@ public class BlockchainReader : MonoBehaviour
     }
     public void DisplayClanInfo(Clan clan)
     {
+        displayClan = clan;
         // Update Clan Name texts
         foreach (var text in clanNameTexts)
         {

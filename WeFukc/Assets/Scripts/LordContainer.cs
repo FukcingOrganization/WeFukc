@@ -15,7 +15,7 @@ public class LordContainer : MonoBehaviour
     public void Button_MintLicense()
     {
         StartCoroutine(FindObjectOfType<BlockchainManager>().
-            MintLicenseCall(this, BigInteger.Parse(licenseAmountInput.text
+            MintLicenseCall(this, GetComponent<Lord>(), BigInteger.Parse(licenseAmountInput.text
         )));
     }
 
@@ -28,6 +28,9 @@ public class LordContainer : MonoBehaviour
         StartCoroutine(FindObjectOfType<BlockchainManager>().
             LordDAOvoteCall(this, BigInteger.Parse(proposalIDInput.text), _isApproving
         ));
+
+        // Reset the DAO info so we can see updated version after voting
+        FindObjectOfType<BlockchainReader>().DAOinfoSet = false;
     }
 
     public void VoteSuccess()
