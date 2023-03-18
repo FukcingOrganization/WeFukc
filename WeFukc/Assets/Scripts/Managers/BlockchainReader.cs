@@ -50,6 +50,7 @@ public class BlockchainReader : MonoBehaviour
     [SerializeField] Member memberPrefab;
     [SerializeField] GameObject memberPanel;
     [SerializeField] GameObject declaredClanPanel;
+    [SerializeField] TextMeshProUGUI declaredClanNameText;
 
     // ITEM
     [Header("Item")]
@@ -424,16 +425,11 @@ public class BlockchainReader : MonoBehaviour
         declaredClanPanel.SetActive(true);
 
         // Display declared clan name
-        declaredClanPanel.GetComponentInChildren<TextMeshProUGUI>().text = declaredClanName;
+        declaredClanNameText.text = declaredClanName + " (ID: " + id + ")";
     }
     public void DisplayClanInfo(Clan clan)
     {
         displayClan = clan;
-        // Update Clan Name texts
-        foreach (var text in clanNameTexts)
-        {
-            text.text = clan.name;
-        }
 
         // Display in the clan canvas
         clanInfoNameText.text = clan.name;
@@ -441,15 +437,24 @@ public class BlockchainReader : MonoBehaviour
         clanInfoMottoText.text = clan.motto;
         clanInfoDescriptionText.text = clan.description;
 
-        if (clan.id == walletClan.id) { clanInfoSet = true; }
+        if (clan.id == walletClan.id) 
+        {
+            foreach (var text in clanNameTexts)
+            {
+                text.text = clan.name;
+            }
+            
+            clanInfoSet = true; 
+        }
     }
     public void DisplayClanPoints(Clan clan)
     {
         clanPointText.text = clan.clanPoint.ToString() +
             " (out of " + clan.totalClanPoints.ToString() + ")"
         ;
-
-        double clanRewardShare = (clan.clanPoint / clan.totalClanPoints) * 100;
+        // If total clan point is zero, then the share is zero as well
+        double clanRewardShare = clan.totalClanPoints == 0 ? 0 : 
+            (clan.clanPoint / clan.totalClanPoints) * 100;
         double clanReward = (clanRewardShare * roundTotalClanReward) / 100;
 
         rewardShareText.text = clanRewardShare.ToString() + "% (" + clanReward + " STICK)";
@@ -460,7 +465,8 @@ public class BlockchainReader : MonoBehaviour
                 " (out of " + clan.totalMemberPoints.ToString() + ")"
             ;
 
-            double memberRewardShare = (walletMemberPoints / clan.totalMemberPoints) * 100;
+            double memberRewardShare = clan.totalMemberPoints == 0 ? 0 :
+                (walletMemberPoints / clan.totalMemberPoints) * 100;
             double memberReward = (clanRewardShare * clanReward) / 100;
 
             walletRewardShare.text = memberRewardShare.ToString() + "% (" + memberReward + " STICK)";

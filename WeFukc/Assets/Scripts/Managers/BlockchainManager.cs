@@ -389,6 +389,22 @@ public class BlockchainManager : MonoBehaviour
             }
 
         }
+
+        // Wait for a short time to check
+        print("Waiting " + checkDelay_1 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_1);
+
+        // Check the last status of the state
+        print("Checking the last status!");
+        StartCoroutine(GetDeclaredClanCall());
+
+        // Then wait one more time but a bit longer to check the last status
+        print("Waiting " + checkDelay_2 + " seconds to check the last status");
+        yield return new WaitForSeconds(checkDelay_2);
+
+        // Check the last status one more time
+        print("Checking the last status again!");
+        StartCoroutine(GetDeclaredClanCall());
     }
     private IEnumerator SetMemberCall(bool assignAsMember)
     {
@@ -888,6 +904,7 @@ public class BlockchainManager : MonoBehaviour
             if (clanID == chainReader.walletClan.id) { clan = chainReader.walletClan; }
             else { clan = chainReader.displayClan; }
 
+            clan.id = clanID;
             clan.leaderAddress = dtoResult.ReturnValue1;
             clan.lordID = (int)dtoResult.ReturnValue2;
             clan.firstRound = (int)dtoResult.ReturnValue3;
@@ -961,8 +978,9 @@ public class BlockchainManager : MonoBehaviour
                     else if (memberMod[i]) { role = "Mod"; }
                     else { role = "Member"; }
 
-                    // Calculate the share
-                    double share = ((int)memberPoints[i] / clan.totalMemberPoints) * 100;
+                    // Calculate the share (if total member points is 0, then the share is 0 as well
+                    double share = clan.totalMemberPoints == 0 ? 0 : 
+                        ((int)memberPoints[i] / clan.totalMemberPoints) * 100;
 
                     // Add the member
                     clan.members.Add(new Member(
@@ -1204,7 +1222,9 @@ public class BlockchainManager : MonoBehaviour
 
             yield return queryRequest.Query(new Contracts.Contracts.StickLord.ContractDefinition
                 .BalanceOfFunction()
-            { }, lordContractAddress);
+            {
+                Owner = _selectedAccountAddress
+            }, lordContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;
@@ -1564,15 +1584,16 @@ public class BlockchainManager : MonoBehaviour
             int startIndex;
             int endIndex;
 
-            if (totalNumberOfProposals - propAmountToGet > 0)
+            // TEST - CHANGE IT WHEN YOU UPDATE CHANE THE DAO CONTRACT : 4 -> totalNumberOfProposals
+            if (4 - propAmountToGet > 0)
             {
-                startIndex = totalNumberOfProposals - propAmountToGet;
+                startIndex = 4 - propAmountToGet;
                 endIndex = startIndex + propAmountToGet - 1;
             }
             else
             {
                 startIndex = 1;
-                endIndex = totalNumberOfProposals - 1;
+                endIndex = 4 - 1;
             }
 
             // Get proposals
@@ -1944,7 +1965,10 @@ public class BlockchainManager : MonoBehaviour
 
             yield return queryRequest.Query(new Contracts.Contracts.StickRound.ContractDefinition
                 .ViewElectionFunction()
-            { }, roundContractAddress);
+            {
+                RoundNumber = roundNumber,
+                LevelNumber = levelNumber
+            }, roundContractAddress);
 
             //Getting the dto response already decoded
             var dtoResult = queryRequest.Result;

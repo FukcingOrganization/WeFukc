@@ -11849,17 +11849,17 @@ MonoBehaviour:
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
   m_ScrollSensitivity: 1
-  m_ContentType: 0
+  m_ContentType: 2
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 0
+  m_KeyboardType: 4
   m_LineType: 0
   m_HideMobileInput: 0
   m_HideSoftKeyboard: 0
-  m_CharacterValidation: 0
+  m_CharacterValidation: 2
   m_RegexValue: 
   m_GlobalPointSize: 14
-  m_CharacterLimit: 0
+  m_CharacterLimit: 4
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls: []
@@ -29182,6 +29182,7 @@ MonoBehaviour:
   memberPrefab: {fileID: 7227196698749506061, guid: 7da980978b93a684e93bb13d34b2fdf8, type: 3}
   memberPanel: {fileID: 1327359324}
   declaredClanPanel: {fileID: 1324599907}
+  declaredClanNameText: {fileID: 1117975619}
   itemBalanceTexts:
   - {fileID: 1089205651}
   - {fileID: 78945229}
@@ -46944,9 +46945,9 @@ RectTransform:
   m_Father: {fileID: 1117440628}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 417.7, y: -326.3}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 417.7, y: 33.700012}
   m_SizeDelta: {x: 130, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1113244881
@@ -76922,9 +76923,9 @@ RectTransform:
   m_Father: {fileID: 1117440628}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 417.8, y: -292.6}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 417.8, y: 67.399994}
   m_SizeDelta: {x: 130, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1778267583
@@ -81597,10 +81598,10 @@ RectTransform:
   m_Father: {fileID: 1117440628}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 443.67203, y: 50.700012}
-  m_SizeDelta: {x: 829.3442, y: 70}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: -65.32797, y: 50.700012}
+  m_SizeDelta: {x: 829.34424, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1898272724
 MonoBehaviour:

@@ -24,11 +24,13 @@ public class Lord : MonoBehaviour
 
     public void SetID(int id)
     {
+        print("Set Lord ID:" + id);
         this.id = id;
         image.sprite = sprites[id - 1]; // lord ids starts from 1 | reduce to meet with array index
         idText.text = id.ToString();
 
         infoSet(id);
+        print("Info set lord ID:" + id);
 
         BlockchainManager chainManager = FindObjectOfType<BlockchainManager>();
 
