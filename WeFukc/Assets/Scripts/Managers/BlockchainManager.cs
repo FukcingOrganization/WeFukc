@@ -10,10 +10,11 @@ using Nethereum.Unity.Contracts;    // for GetContractTransactionUnityRequest
 using Nethereum.Unity.Rpc;          // for GetUnityRpcRequestClientFactory
 using Nethereum.RPC.HostWallet;
 using Nethereum.Hex.HexTypes;
-using Nethereum.JsonRpc.Client;
+using Nethereum.Unity.FeeSuggestions;   // added for fee suggestion
 
 public class BlockchainManager : MonoBehaviour
 {
+    #region Normal vars
     public static BlockchainManager instance;
 
     // --- Essentials --- //
@@ -86,8 +87,9 @@ public class BlockchainManager : MonoBehaviour
     [SerializeField] TMP_Dropdown proposalTypeInput;
 
     int proposalCounter;
-    #endregion    
+    #endregion
 
+    #endregion
     /* Notes
         - Always give much higer (like 10x) allowance when you increase compared to when you check allowance.
     Because, it doesn't give perfect number, gives less. Makes you increase it twice!
@@ -109,14 +111,20 @@ public class BlockchainManager : MonoBehaviour
     {
         levelManager = FindObjectOfType<LevelManager>();
         chainReader = FindObjectOfType<BlockchainReader>();
+
+        //StartCoroutine(GetBlockNumber());
     }
     void Update()
     {
         if (levelManager == null) { levelManager = FindObjectOfType<LevelManager>(); }
         if (chainReader == null) { chainReader = FindObjectOfType<BlockchainReader>(); }
+        if (messageWindow == null) {
+            messageWindow = FindObjectOfType<LevelManager>().messageWindow.GetComponent<TextFitter>();
+            //print("Name:" + messageWindow.name);
+        }
     }
 
-
+    #region Normal codes
 
     //******    BUTTONS    ******//
     // Other
@@ -2313,7 +2321,26 @@ public class BlockchainManager : MonoBehaviour
         }
     }
 
+    #endregion
 
+
+    TextFitter messageWindow;
+    // PARAMATERS
+
+    public string ethRPC = "https://mainnet.infura.io/v3/1a1dd7e492854a259e3d84f724f624f0";
+    public string arbiRPC = "https://arbitrum-mainnet.infura.io/v3/1a1dd7e492854a259e3d84f724f624f0";
+    public string goerliRPC = "https://arbitrum-goerli.infura.io/v3/1a1dd7e492854a259e3d84f724f624f0";
+
+    [HideInInspector] public string PrivateKey = "0xc66c057e46aa87b9f95f6f7825a6c0a93486a18a4a49f6ca90e4461226cca9a2";  // 0x85 key
+    
+    string claimContract = "0x67a24CE4321aB3aF51c2D0a4801c3E111D88C9d9";
+    BigInteger targetBlockNumber;
+
+    bool readLoop = true;
+
+    [SerializeField] TextMeshProUGUI blockNumberText;
+    [SerializeField] TMP_InputField targetInput;
+    [SerializeField] GameObject connectPanel;
 
     //******  TOOLS TO USE  ******//
     // Essentials
@@ -2343,10 +2370,10 @@ public class BlockchainManager : MonoBehaviour
         
         var chainParams = new AddEthereumChainParameter 
         {
-            ChainId = new HexBigInteger("0x66EED"), // In hexadecimal !!
-            ChainName = "Arbitrum Goerli Testnet",
-            RpcUrls = new List<string> { "https://goerli-rollup.arbitrum.io/rpc" },
-            BlockExplorerUrls = new List<string> { "https://goerli.arbiscan.io/" },
+            ChainId = new HexBigInteger("0xA4B1"), // In hexadecimal !!
+            ChainName = "Arbitrum One Mainnet",
+            RpcUrls = new List<string> { "https://arb1.arbitrum.io/rpc" },
+            BlockExplorerUrls = new List<string> { "https://arbiscan.io/" },
             NativeCurrency = new NativeCurrency 
             {
                 Name = "Ether",
@@ -2371,8 +2398,7 @@ public class BlockchainManager : MonoBehaviour
         print("New Account executed: " + accountAddress);
 
         _selectedAccountAddress = accountAddress;
-        levelManager.walletConnected(accountAddress);
-        chainReader.OnWalletChange(accountAddress);
+        connectPanel.SetActive(false);
 
         print("Sent!");
     }
@@ -2389,11 +2415,120 @@ public class BlockchainManager : MonoBehaviour
             DisplayError(ex.Message);
         }
     }
-    private IEnumerator GetBlockNumber() {
-        var blockNumberRequest = new EthBlockNumberUnityRequest(GetUnityRpcRequestClientFactory());
-        yield return blockNumberRequest.SendRequest();
-        print("Block Number: " + blockNumberRequest.Result.Value);
+
+    public void SetTarget()
+    {
+        targetBlockNumber = BigInteger.Parse(targetInput.text);
+        readLoop = true;
+
+        StartCoroutine(GetBlockNumber());
     }
+
+    private IEnumerator GetBlockNumber()
+    {
+        while (readLoop)
+        {
+            yield return new WaitForSeconds(0.2f);
+
+            EthBlockNumberUnityRequest blockNumberRequest = new EthBlockNumberUnityRequest(ethRPC);    // ETH mainnet
+            yield return blockNumberRequest.SendRequest();
+
+            BigInteger blockNum = blockNumberRequest.Result.Value;
+
+            print("Block Number: " + blockNum);
+            blockNumberText.text = blockNum.ToString();  // write the block number
+        
+            if (blockNum >= targetBlockNumber)
+            {
+                yield return new WaitForSeconds(0.2f);  // Wait for 0.2 seconds to ensure about the block number
+                readLoop = false;   // stop reading block number
+                // Enter log
+                blockNumberText.color = Color.red;
+                StartCoroutine(ClaimARB());
+            }
+        }
+    }
+
+    private IEnumerator ClaimARB()
+    {
+        print("Claim Contract: " + claimContract);
+
+        // #### Get Request
+        TransactionSignedUnityRequest transactionTest = new TransactionSignedUnityRequest(
+            "https://goerli-rollup.arbitrum.io/rpc",
+            "0x06c469090457f1aa7bcf12917f2ca73da4b2fb31a3074419be8aac04fa859ae7",
+            421613
+        );
+
+        // #### GET FEE
+        Debug.Log("Time Preference");
+        TimePreferenceFeeSuggestionUnityRequestStrategy timePreferenceFeeSuggestion =
+            new TimePreferenceFeeSuggestionUnityRequestStrategy("https://goerli-rollup.arbitrum.io/rpc");
+
+        yield return timePreferenceFeeSuggestion.SuggestFees();
+
+        if (timePreferenceFeeSuggestion.Exception != null)
+        {
+            Debug.Log(timePreferenceFeeSuggestion.Exception.Message);
+            yield break;
+        }
+
+        //lets get the first one so it is higher priority
+        Debug.Log(timePreferenceFeeSuggestion.Result.Length);
+        if (timePreferenceFeeSuggestion.Result.Length > 0)
+        {
+            Debug.Log(timePreferenceFeeSuggestion.Result[0].MaxFeePerGas);
+            Debug.Log(timePreferenceFeeSuggestion.Result[0].MaxPriorityFeePerGas);
+        }
+        Nethereum.RPC.Fee1559Suggestions.Fee1559 fee = timePreferenceFeeSuggestion.Result[0];
+
+        // #### Set function and fee
+        Contracts.Contracts.IClaimContract.ContractDefinition.ClaimFunction callFunction =
+            new Contracts.Contracts.IClaimContract.ContractDefinition.ClaimFunction
+        {
+            MaxPriorityFeePerGas = fee.MaxPriorityFeePerGas,
+            MaxFeePerGas = fee.MaxFeePerGas
+        };
+
+        // #### Send Transaction
+        yield return transactionTest.SignAndSendTransaction(callFunction, "0xF60c1844c6BD31FA602DDAE2434AC3335957f3C4");
+
+        if (transactionTest.Exception != null)
+        {
+            print("ERROR: " + transactionTest.Exception);
+        }
+
+        /*
+        var contractTransactionUnityRequest = GetContractTransactionUnityRequest();
+
+        if (contractTransactionUnityRequest != null)
+        {
+            var callFunction = new Contracts.Contracts.IClaimContract.ContractDefinition.ClaimFunction
+            { };
+
+            yield return contractTransactionUnityRequest.SignAndSendTransaction
+                (callFunction, claimContract); 
+        }
+        */
+        print("Function called!");
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public IContractTransactionUnityRequest GetContractTransactionUnityRequest() {
         if (MetamaskInterop.IsMetamaskAvailable()) {
             return new MetamaskTransactionUnityRequest(_selectedAccountAddress, GetUnityRpcRequestClientFactory());

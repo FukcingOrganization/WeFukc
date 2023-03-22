@@ -151,13 +151,13 @@ public class BlockchainReader : MonoBehaviour
         chainManager = FindObjectOfType<BlockchainManager>();
         messageWindow = FindObjectOfType<LevelManager>().messageWindow.GetComponent<TextFitter>();
 
-        print("Name:" + messageWindow.name);
+        //print("Name:" + messageWindow.name);
     }
     void Update()
     {
         if (chainManager == null) { chainManager = FindObjectOfType<BlockchainManager>(); }
         if (messageWindow == null) { messageWindow = FindObjectOfType<LevelManager>().messageWindow.GetComponent<TextFitter>();
-            print("Name:" + messageWindow.name);
+            //print("Name:" + messageWindow.name);
         }
     }
 
